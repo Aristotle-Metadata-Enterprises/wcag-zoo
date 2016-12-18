@@ -1,10 +1,53 @@
 from __future__ import print_function, division
-from premoler import PreMoler as Premailer
+from premailer import Premailer
 from lxml import etree
 import os, sys
 import webcolors 
 import click
 from io import StringIO
+from xtermcolor import colorize
+
+import logging
+import cssutils
+cssutils.log.setLevel(logging.CRITICAL)
+
+
+class Premoler(Premailer):
+    # We have to override this because an absolute path is from root, not the curent dir.
+    def _load_external(self, url):
+        """loads an external stylesheet from a remote url or local path
+        """
+        import codecs
+        from premailer.premailer import ExternalNotFoundError, urljoin
+        if url.startswith('//'):
+            # then we have to rely on the base_url
+            if self.base_url and 'https://' in self.base_url:
+                url = 'https:' + url
+            else:
+                url = 'http:' + url
+
+        if url.startswith('http://') or url.startswith('https://'):
+            css_body = self._load_external_url(url)
+        else:
+            stylefile = url
+            if not os.path.isabs(stylefile):
+                stylefile = os.path.abspath(
+                    os.path.join(self.base_path or '', stylefile)
+                )
+            elif os.path.isabs(stylefile):  # <--- This is the if branch we added
+                stylefile = os.path.abspath(
+                    os.path.join(self.base_path or '', stylefile[1:])
+                )
+            if os.path.exists(stylefile):
+                with codecs.open(stylefile, encoding='utf-8') as f:
+                    css_body = f.read()
+            elif self.base_url:
+                url = urljoin(self.base_url, url)
+                return self._load_external(url)
+            else:
+                raise ExternalNotFoundError(stylefile)
+
+        return css_body
 
 
 def normalise_color(color):
@@ -36,6 +79,7 @@ def normalise_color(color):
         rgba_color = (list(rgba_color) + [1])[:4]
     return rgba_color
 
+
 def calculate_luminocity(r=0, g=0, b=0):
     # Calculates luminocity according to 
     # https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
@@ -52,6 +96,7 @@ def calculate_luminocity(r=0, g=0, b=0):
     
     L = 0.2126 * R + 0.7152 * G + 0.0722 * B
     return L
+
 
 def generate_opaque_color(color_stack):
     # http://stackoverflow.com/questions/10781953/determine-rgba-colour-received-by-combining-two-colours
@@ -80,12 +125,13 @@ def generate_opaque_color(color_stack):
 
     return [int(red), int(green), int(blue)]
 
+
 @click.command()
-@click.option('--filename', help='File to test for WCAG color compliance.')
-@click.option('--staticpath', help='Directory path to static files.')
+@click.option('--filename', required=True, help='File to test')
 @click.option('--level', help='WCAG level to test against (AAA or AA). Defaults to AA.')
-@click.option('--verbosity', help='Specify how much text to output during processing')
-def molerat(filename, staticpath=".", level="AA", verbosity=1):
+@click.option('--verbosity', '-v', help='Specify how much text to output during processing')
+@click.option('--staticpath', help='Directory path to static files.')
+def molerat_cli(*args, **kwargs):
     """
     Molerat checks color contrast in an HTML file against the WCAG2.0 standard
     
@@ -95,20 +141,41 @@ def molerat(filename, staticpath=".", level="AA", verbosity=1):
     However, it *doesn't* check contrast between foreground colors and background images.
     
     Paradoxically:
+
       a failed molerat check doesn't mean your page doesn't conform to WCAG2.0
-      but a successful molerat check doesn't mean your page will conform either...
       
-      Command line tools aren't a replacement for good user testing!
+      but a successful molerat check doesn't mean your page will conform either...
+    
+    Command line tools aren't a replacement for good user testing!
     """
+
+    results = molerat(*args, **kwargs)
+    print("\n".join([
+        "Finished - {num_fail} failed",
+        "         - {num_warn} warnings",
+        "         - {num_good} succeeded",
+        "Tested at WCAG2.0 %s Level" % kwargs['level'],
+    ]).format(num_fail=len(results['failures']), num_warn=len(results['warnings']), num_good=results['success'])
+    )
+
+    if results.get('failures'):
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+def molerat(filename, staticpath=".", level="AA", verbosity=1):
     # https://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html
     if level != "AAA":
         level = "AA"
+    try:
+        verbosity = int(verbosity)
+    except:
+        verbosity = 1
     with open(filename) as f:
         html = f.read()
         if hasattr(html, 'decode'):  # Forgive me: Python 2 compatability
             html = html.decode('utf-8')
-        print( os.path.join(os.path.dirname(os.path.dirname(__file__))))
-        denormal = Premailer(
+        denormal = Premoler(
             html,
             exclude_pseudoclasses=True,
             method="html",
@@ -117,14 +184,15 @@ def molerat(filename, staticpath=".", level="AA", verbosity=1):
             include_star_selectors=True,
             strip_important=False,
             disable_validation=True
-            
         ).transform()
 
         parser = etree.HTMLParser()
         tree   = etree.parse(StringIO(denormal), parser)
         
         success = 0
-        failed = 0
+        failed=0
+        failures = []
+        warnings = []
         # find all nodes that have text
         for node in tree.xpath('/html/body//*[text()!=""]'):
             if node.text is None or node.text.strip() == "":
@@ -167,33 +235,44 @@ def molerat(filename, staticpath=".", level="AA", verbosity=1):
 
             ratio = (L1 + 0.05) / (L2 + 0.05)
 
-            if ratio < ratio_threshold: # or True:
-                print(
-                    (
+            if ratio < ratio_threshold:
+                if len(node.text) > 70:
+                    disp_text = node.text[:70]+"..."
+                else:
+                    disp_text = node.text
+                message =(
                         u"Insufficient contrast ({r:.2f}) for element - {xpath}"
-                        u"\n    Text was: [{text}]"
                         u"\n    Computed rgb values are == Foreground {fg} / Background {bg}"
+                        u"\n    Text was:         {text}"
+                        u"\n    Colored text was: {color_text}"
                     ).format(
-                    xpath=tree.getpath(node),
-                    text=node.text,
-                    fg=foreground,
-                    bg=background,
-                    r=ratio
-                ))
-                failed += 1  # Boo!! Not cool!
+                        xpath=tree.getpath(node),
+                        text=disp_text,
+                        fg=foreground,
+                        bg=background,
+                        r=ratio,
+                        color_text=colorize(
+                            disp_text,
+                            rgb = int('0x%s'%webcolors.rgb_to_hex(foreground)[1:], 16),
+                            bg = int('0x%s'%webcolors.rgb_to_hex(background)[1:], 16),
+                        )
+                    )
+                if verbosity >= 1:
+                    print(message)
+                failures.append({
+                    'guideline': '1.4.3',
+                    'technique': 'H37',
+                    'xpath': tree.getpath(node),
+                    'message': message
+                })
             else:
                 success += 1  # I like what you got!
 
-        print("\n".join([
-            "Finished - {} failed".format(failed),
-            "         - {} succeeded".format(success),
-            "Tested at WCAG2.0 %s Level" % level,
-        ]))
-    if failed > 0:
-        sys.exit(1)
-    else:
-        sys.exit(0)
+    return {
+        "success": success,
+        "failures": failures,
+        "warnings": warnings
+    }
 
 if __name__ == "__main__":
-    # Usage: molerat --filename="some.html" --staticpath="/home/ubuntu/workspace/mystuff" --level="AA"
-    molerat()
+    molerat_cli()

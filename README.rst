@@ -13,3 +13,7 @@ Current critters include:
 * Tarsier - tree traveral to check headings are correct::
 
    tarsier --filename=your_file.html --level=AA
+
+* Anteater - checks ``img`` tags for alt tags::
+
+   tarsier --filename=your_file.html --level=AA
