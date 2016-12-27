@@ -1,17 +1,23 @@
-from __future__ import print_function, division
+﻿from __future__ import print_function, division
 from premailer import Premailer
 from lxml import etree
 import os, sys
 import webcolors 
 import click
 from xtermcolor import colorize
-from wcag_zoo.utils import print_if, common_cli, common_wcag, StringIO, nice_console_text, get_applicable_styles
+from wcag_zoo.utils import print_if, common_cli, common_wcag, get_tree, nice_console_text, get_applicable_styles
 
 import logging
 import cssutils
 cssutils.log.setLevel(logging.CRITICAL)
 
 WCAG_LUMINOCITY_RATIO_THRESHOLD = {"AA": 4.5, "AAA": 7}
+
+error_codes = {
+    1: "Duplicate `accesskey` attribute '{key}' found. First seen at element {elem}",
+    2: "Blank `accesskey` attribute found at element {elem}",
+    3: "No `accesskey` attributes found, consider adding some to improve keyboard accessibility",
+}
 
 
 class Premoler(Premailer):
@@ -167,8 +173,7 @@ def molerat(html, staticpath=".", level="AA", verbosity=1, skip_these_classes=[]
         disable_validation=True
     ).transform()
 
-    parser = etree.HTMLParser()
-    tree   = etree.parse(StringIO(denormal), parser)
+    tree = get_tree(denormal)
     
     success = 0
     failed=0
@@ -183,7 +188,7 @@ def molerat(html, staticpath=".", level="AA", verbosity=1, skip_these_classes=[]
         if node.tag in ['script','style']:
             continue
 
-        # set some sensible defaults.
+        # set some sensible defaults that we can recognise while debugging.
         colors = [[1,2,3,1]]  # Black-ish
         backgrounds = [[254,253,252,1]]  # White-ish
         fonts = ['10pt']
@@ -267,23 +272,8 @@ def molerat(html, staticpath=".", level="AA", verbosity=1, skip_these_classes=[]
 @click.option('--staticpath', help='Directory path to static files.')
 @common_cli(function=molerat)
 def molerat_cli(*args, **kwargs):
-    """
-    Molerat checks color contrast in an HTML file against the WCAG2.0 standard
-    
-    It checks foreground colors against background colors taking into account
-    opacity values and font-size to conform to WCAG2.0 Guidelines 1.4.3 & 1.4.6.
-    
-    However, it *doesn't* check contrast between foreground colors and background images.
-    
-    Paradoxically:
+    return # molerat(*args, **kwargs)
 
-      a failed molerat check doesn't mean your page doesn't conform to WCAG2.0
-      
-      but a successful molerat check doesn't mean your page will conform either...
-    
-    Command line tools aren't a replacement for good user testing!
-    """
-    return
 
 if __name__ == "__main__":
     molerat_cli()

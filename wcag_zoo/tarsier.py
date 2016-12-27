@@ -1,29 +1,31 @@
-from lxml import etree
+﻿from lxml import etree
 import click
-from wcag_zoo.utils import print_if, common_cli, common_wcag, StringIO
+from wcag_zoo.utils import WCAGCommand
 
-@common_wcag
-def tarsier(filename, staticpath=".", level="AA", verbosity=1):
+class Tarsier(WCAGCommand):
     """
     Tarsier reads heading levels in HTML documents (H1,H2,...H6) to verfiy order and completion against the requirements of the WCAG2.0 standard
     """
 
-    parser = etree.HTMLParser()
-    tree   = etree.parse(StringIO(html), parser)
-    
-    success = 0
-    failed = 0
-    # find all nodes that have text
-    headers_xpath = " or ".join(['self::h%d'%x for x in range(7)])
-    for node in tree.xpath('/html/body//*[%s]'%headers_xpath):
-        print(node.tag, node.text)
-            
+    animal = """
+        The tarsiers are prosimian (non-monkey) primates. They got their name from the long bones in their feet.
+        They are now placed in the suborder Haplorhini, together with the simians (monkeys).
 
-@click.command()
-@common_cli(function=tarsier)
-def tarsier_cli(*args, **kwargs):
-    return
+        Tarsiers have huge eyes and long feet, and catch the insects by jumping at them.
+        During the night they wait quietly, listening for the sound of an insect moving nearby.
+        
+        - https://simple.wikipedia.org/wiki/Tarsier
+    """
+
+    xpath = '/html/body//*[%s]'%(" or ".join(['self::h%d'%x for x in range(7)]))
+
+    error_codes = {
+        1: "Duplicate `accesskey` attribute '{key}' found. First seen at element {elem}",
+    }
+
+    def validate_element(self, node):
+        print(node.tag, node.text)
 
 if __name__ == "__main__":
-    # Usage: molerat --filename="some.html" --staticpath="/home/ubuntu/workspace/mystuff" --level="AA"
-    tarsier_cli()
+    cli = Tarsier.as_cli()
+    cli()
