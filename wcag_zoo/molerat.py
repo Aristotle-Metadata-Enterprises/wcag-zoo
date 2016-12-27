@@ -5,7 +5,7 @@ import os, sys
 import webcolors 
 import click
 from xtermcolor import colorize
-from wcag_zoo.utils import print_if, common_cli, common_wcag, get_tree, nice_console_text, get_applicable_styles
+from wcag_zoo.utils import WCAGCommand, print_if, common_cli, common_wcag, get_tree, nice_console_text, get_applicable_styles
 
 import logging
 import cssutils
@@ -14,48 +14,8 @@ cssutils.log.setLevel(logging.CRITICAL)
 WCAG_LUMINOCITY_RATIO_THRESHOLD = {"AA": 4.5, "AAA": 7}
 
 error_codes = {
-    1: "Duplicate `accesskey` attribute '{key}' found. First seen at element {elem}",
-    2: "Blank `accesskey` attribute found at element {elem}",
-    3: "No `accesskey` attributes found, consider adding some to improve keyboard accessibility",
 }
 
-
-class Premoler(Premailer):
-    # We have to override this because an absolute path is from root, not the curent dir.
-    def _load_external(self, url):
-        """loads an external stylesheet from a remote url or local path
-        """
-        import codecs
-        from premailer.premailer import ExternalNotFoundError, urljoin
-        if url.startswith('//'):
-            # then we have to rely on the base_url
-            if self.base_url and 'https://' in self.base_url:
-                url = 'https:' + url
-            else:
-                url = 'http:' + url
-
-        if url.startswith('http://') or url.startswith('https://'):
-            css_body = self._load_external_url(url)
-        else:
-            stylefile = url
-            if not os.path.isabs(stylefile):
-                stylefile = os.path.abspath(
-                    os.path.join(self.base_path or '', stylefile)
-                )
-            elif os.path.isabs(stylefile):  # <--- This is the if branch we added
-                stylefile = os.path.abspath(
-                    os.path.join(self.base_path or '', stylefile[1:])
-                )
-            if os.path.exists(stylefile):
-                with codecs.open(stylefile, encoding='utf-8') as f:
-                    css_body = f.read()
-            elif self.base_url:
-                url = urljoin(self.base_url, url)
-                return self._load_external(url)
-            else:
-                raise ExternalNotFoundError(stylefile)
-
-        return css_body
 
 
 def normalise_color(color):
@@ -267,13 +227,95 @@ def molerat(html, staticpath=".", level="AA", verbosity=1, skip_these_classes=[]
         "skipped": skipped
     }
 
+class Molerat(WCAGCommand):
+    """
+    Molerat checks color contrast in a HTML string against the WCAG2.0 standard
+    
+    It checks foreground colors against background colors taking into account
+    opacity values and font-size to conform to WCAG2.0 Guidelines 1.4.3 & 1.4.6.
+    
+    However, it *doesn't* check contrast between foreground colors and background images.
+    
+    Paradoxically:
 
-@click.command()
-@click.option('--staticpath', help='Directory path to static files.')
-@common_cli(function=molerat)
-def molerat_cli(*args, **kwargs):
-    return # molerat(*args, **kwargs)
+      a failed molerat check doesn't mean your page doesn't conform to WCAG2.0
+      
+      but a successful molerat check doesn't mean your page will conform either...
+    
+    Command line tools aren't a replacement for good user testing!
+    """
 
+    animal = """
+        
+        - https://simple.wikipedia.org/wiki/Molerat
+    """
+
+    xpath = '/html/body//*[text()!=""]'
+
+    error_codes = {
+        1: "Duplicate `accesskey` attribute '{key}' found. First seen at element {elem}",
+    }
+
+    def skip_element(self, node):
+        
+        if node.text is None or node.text.strip() == "":
+            return True
+        if node.tag in ['script','style']:
+            return True
+
+    def validate_element(self, node):
+        print(node)
+
+        # set some sensible defaults that we can recognise while debugging.
+        colors = [[1,2,3,1]]  # Black-ish
+        backgrounds = [[254,253,252,1]]  # White-ish
+        fonts = ['10pt']
+
+        
+        for styles in get_applicable_styles(node):
+            if "color" in styles.keys():
+                colors.append(normalise_color(styles['color']))
+            if "background-color" in styles.keys():
+                backgrounds.append(normalise_color(styles['background-color']))
+            if "font-size" in styles.keys():
+                fonts.append(styles['font-size'])
+
+        ratio_threshold = WCAG_LUMINOCITY_RATIO_THRESHOLD.get(self.level)
+
+        foreground = generate_opaque_color(colors)
+        background = generate_opaque_color(backgrounds)
+        ratio = calculate_luminocity_ratio(foreground,background)
+        print(ratio < ratio_threshold)
+        print(ratio, ratio_threshold)
+        if ratio < ratio_threshold:
+            disp_text = nice_console_text(node.text)
+            message =(
+                    u"Insufficient contrast ({r:.2f}) for element - {xpath}"
+                    u"\n    Computed rgb values are == Foreground {fg} / Background {bg}"
+                    u"\n    Text was:         {text}"
+                    u"\n    Colored text was: {color_text}"
+                ).format(
+                    xpath=node.getroottree().getpath(node),
+                    text=disp_text,
+                    fg=foreground,
+                    bg=background,
+                    r=ratio,
+                    color_text=colorize(
+                        disp_text,
+                        rgb = int('0x%s'%webcolors.rgb_to_hex(foreground)[1:], 16),
+                        bg = int('0x%s'%webcolors.rgb_to_hex(background)[1:], 16),
+                    )
+                )
+
+            self.add_failure(
+                guideline = '1.4.3',
+                technique = 'H37',
+                node = node,
+                message = message,
+            )
+        else:
+            self.success += 1  # I like what you got!
 
 if __name__ == "__main__":
-    molerat_cli()
+    cli = Molerat.as_cli()
+    cli()

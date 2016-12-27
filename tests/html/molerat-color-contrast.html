@@ -10,20 +10,20 @@
                 background-color: black;
             }
             .habdashery {
-                /* Tom Haverford would be proud, but this is illegible */
+                /* Grandma would be proud, but this is illegible */
                 color: OldLace;
                 background-color: Linen;
             }
         </style>
     </head>
     <body>
-        <p class="black-on-black">Tom Haverford</p>
+        <p class="black-on-black" data-wcag="fail" data-wcag-fail-code="molerat-1">Tom Haverford</p>
         <div class="invisible">
             <p class="black-on-black">John Ralphio</p>
         </div>
-        <p class="habdashery">
+        <p class="habdashery" data-wcag="fail" data-wcag-fail-code="molerat-1">
             This is hard to read.
-            <span style="color:#00000">
+            <span style="color:#00000" data-wcag="success">
                 This is better!
             </span>
         </p>

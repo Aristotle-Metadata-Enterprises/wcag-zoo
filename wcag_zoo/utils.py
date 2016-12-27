@@ -4,6 +4,48 @@ import click
 import sys
 from io import StringIO
 from functools import wraps
+import logging
+from premailer import Premailer
+import cssutils
+cssutils.log.setLevel(logging.CRITICAL)
+
+
+class Premoler(Premailer):
+    # We have to override this because an absolute path is from root, not the curent dir.
+    def _load_external(self, url):
+        """loads an external stylesheet from a remote url or local path
+        """
+        import codecs
+        from premailer.premailer import ExternalNotFoundError, urljoin
+        if url.startswith('//'):
+            # then we have to rely on the base_url
+            if self.base_url and 'https://' in self.base_url:
+                url = 'https:' + url
+            else:
+                url = 'http:' + url
+
+        if url.startswith('http://') or url.startswith('https://'):
+            css_body = self._load_external_url(url)
+        else:
+            stylefile = url
+            if not os.path.isabs(stylefile):
+                stylefile = os.path.abspath(
+                    os.path.join(self.base_path or '', stylefile)
+                )
+            elif os.path.isabs(stylefile):  # <--- This is the if branch we added
+                stylefile = os.path.abspath(
+                    os.path.join(self.base_path or '', stylefile[1:])
+                )
+            if os.path.exists(stylefile):
+                with codecs.open(stylefile, encoding='utf-8') as f:
+                    css_body = f.read()
+            elif self.base_url:
+                url = urljoin(self.base_url, url)
+                return self._load_external(url)
+            else:
+                raise ExternalNotFoundError(stylefile)
+
+        return css_body
 
 def print_if(*args, **kwargs):
     check = kwargs.pop('check', False)
@@ -154,18 +196,16 @@ def common_cli(function):
         return cli
     return wrapper
 
-def common_wcag(animal=""):
-    def dec(function):
-        @wraps(function)
-        def inner(*args, **kwargs):
-            assert kwargs.get('level',"B") in 'AAA', "WCAG level must be 'A', 'AA' or 'AAA'"
-            return function(*args, **kwargs)
-        inner.animal = animal
-        return inner
-    return dec
+def common_wcag(function):
+    @wraps(function)
+    def inner(*args, **kwargs):
+        assert kwargs.get('level',"B") in 'AAA', "WCAG level must be 'A', 'AA' or 'AAA'"
+        return function(*args, **kwargs)
+    return inner
 
 class WCAGCommand(object):
     animal = None
+    level = 'AA'
     
     success = 0
     failed=0
@@ -176,6 +216,7 @@ class WCAGCommand(object):
     def __init__(self, *args, **kwargs):
         self.skip_these_classes = kwargs['skip_these_classes']
         self.skip_these_ids = kwargs['skip_these_ids']
+        self.level = kwargs['level']
         self.kwargs = kwargs
 
     def add_failure(self, **kwargs):
@@ -188,7 +229,7 @@ class WCAGCommand(object):
         self.skipped.append(build_msg(**kwargs))
 
     def skip_element(self, node):
-        return ""
+        return False
 
     def _check_skip_element(self, node):
         skip_node = False
@@ -201,7 +242,6 @@ class WCAGCommand(object):
             skip_message.append("Skipped [%s] because node id class [%s]\n    Text was: [%s]" % (tree.getpath(node), node.get('id'), node.text))
             skip_node = True
         if self.skip_element(node):
-            skip_message.append(self.skip_element(node))
             skip_node = True
 
         for styles in get_applicable_styles(node):
@@ -235,9 +275,23 @@ class WCAGCommand(object):
     def validate_element(self, elem):
         pass
 
+
+
     def get_tree(self, html):
-        parser = etree.HTMLParser()
-        return etree.parse(StringIO(html), parser)
+        if not hasattr(self, '_tree'):
+            html = Premoler(
+                html,
+                exclude_pseudoclasses=True,
+                method="html",
+                preserve_internal_links=True,
+                base_path=self.kwargs.get('staticpath','.'),
+                include_star_selectors=True,
+                strip_important=False,
+                disable_validation=True
+            ).transform()
+            parser = etree.HTMLParser()
+            self._tree = etree.parse(StringIO(html), parser)
+        return self._tree
 
     def run_validation_loop(self, xpath=None, validator=None):
         if xpath is None:
@@ -262,6 +316,7 @@ class WCAGCommand(object):
         @click.option('--A', 'short_level', flag_value='A', help='Shortcut for --level=A')
         @click.option('--AA', 'short_level', flag_value='AA', help='Shortcut for --level=AA')
         @click.option('--AAA', 'short_level', flag_value='AAA', help='Shortcut for --level=AAA')
+        @click.option('--staticpath', default='.', help='Directory path to static files.')
         @click.option('--skip_these_classes', '-C', default="", help='Comma-separated list of CSS classes for HTML elements to *not* validate')
         @click.option('--skip_these_ids', '-I', default="", help='Comma-separated list of ids for HTML elements to *not* validate')
         @click.option('--animal', expose_value=False, default=False, is_flag=True, help='')
@@ -271,7 +326,7 @@ class WCAGCommand(object):
             total_results = []
             filenames = kwargs.pop('filenames')
             short_level = kwargs.pop('short_level', 'AA')
-            kwargs['level'] = kwargs['level'] or short_level
+            kwargs['level'] = kwargs['level'] or short_level or 'AA'
             verbosity = kwargs.get('verbosity')
             warnings_as_errors = kwargs.pop('warnings_as_errors', False)
             kwargs['skip_these_classes'] = [c.strip() for c in kwargs.get('skip_these_classes').split(',') if c]
