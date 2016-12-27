@@ -153,6 +153,7 @@ def molerat(html, staticpath=".", level="AA", verbosity=1, skip_these_classes=[]
     
     Command line tools aren't a replacement for good user testing!
     """
+    
     # https://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html
 
     denormal = Premoler(

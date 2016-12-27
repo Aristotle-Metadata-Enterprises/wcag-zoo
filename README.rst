@@ -64,7 +64,15 @@ Two ways:
    from wcag_zoo.molerat import molerat
    messages = molerat(html=some_text, ... )
    assert len(messages['failed']) == 0
-   
+
+I've done all that can I have a badge?
+--------------------------------------
+
+Of course! Pick one of these:
+
+``https://img.shields.io/badge/WCAG_Zoo-AA-green.svg``
+``https://img.shields.io/badge/WCAG_Zoo-AAA-green.svg``
+
 
 Installing
 ----------

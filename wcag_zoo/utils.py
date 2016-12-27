@@ -2,7 +2,7 @@ from __future__ import print_function
 import click
 import sys
 from io import StringIO
-
+from functools import wraps
 
 def print_if(*args, **kwargs):
     check = kwargs.pop('check', True)
@@ -38,7 +38,8 @@ def get_applicable_styles(node):
 def common_cli(function,*args, **kwargs):
     
     __function__ = function
-    def cli2(function):
+    @wraps(__function__)
+    def inner(function):
         
         @click.argument('filenames', required=True, nargs=-1)
         @click.option('--level', type=click.Choice(['AA', 'AAA', 'A']), default='AA', help='WCAG level to test against. Defaults to AA.')
@@ -128,17 +129,14 @@ def common_cli(function,*args, **kwargs):
                 sys.exit(1)
             else:
                 sys.exit(0)
-        cli.__doc__ = __function__.__doc__
         return cli
-    return cli2
+    return inner
 
 def common_wcag(function):
-    
+    @wraps(function)
     def inner(*args, **kwargs):
         
         assert kwargs.get('level',None) in 'AAA', "WCAG level must be 'A', 'AA' or 'AAA'"
-        
         return function(*args, **kwargs)
 
-        
     return inner
