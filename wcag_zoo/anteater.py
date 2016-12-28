@@ -1,7 +1,4 @@
-﻿from lxml import etree
-import click
-import os, sys
-from wcag_zoo.utils import WCAGCommand, print_if, common_cli, common_wcag, StringIO, get_applicable_styles
+﻿from wcag_zoo.utils import WCAGCommand
 
 # https://www.w3.org/TR/WCAG20-TECHS/H37.html
 # https://www.w3.org/TR/WCAG20-TECHS/H67.html

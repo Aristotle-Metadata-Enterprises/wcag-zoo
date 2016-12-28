@@ -101,132 +101,6 @@ def calculate_luminocity_ratio(foreground, background):
 
     return (L1 + 0.05) / (L2 + 0.05)
 
-@common_wcag
-def molerat(html, staticpath=".", level="AA", verbosity=1, skip_these_classes=[], skip_these_ids=[]):
-    """
-    Molerat checks color contrast in a HTML string against the WCAG2.0 standard
-    
-    It checks foreground colors against background colors taking into account
-    opacity values and font-size to conform to WCAG2.0 Guidelines 1.4.3 & 1.4.6.
-    
-    However, it *doesn't* check contrast between foreground colors and background images.
-    
-    Paradoxically:
-
-      a failed molerat check doesn't mean your page doesn't conform to WCAG2.0
-      
-      but a successful molerat check doesn't mean your page will conform either...
-    
-    Command line tools aren't a replacement for good user testing!
-    """
-    
-    # https://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html
-
-    denormal = Premoler(
-        html,
-        exclude_pseudoclasses=True,
-        method="html",
-        preserve_internal_links=True,
-        base_path=staticpath,
-        include_star_selectors=True,
-        strip_important=False,
-        disable_validation=True
-    ).transform()
-
-    tree = get_tree(denormal)
-    
-    success = 0
-    failed=0
-    failures = []
-    warnings = []
-    skipped = []
-    # find all nodes that have text
-    for node in tree.xpath('/html/body//*[text()!=""]'):
-
-        if node.text is None or node.text.strip() == "":
-            continue
-        if node.tag in ['script','style']:
-            continue
-
-        # set some sensible defaults that we can recognise while debugging.
-        colors = [[1,2,3,1]]  # Black-ish
-        backgrounds = [[254,253,252,1]]  # White-ish
-        fonts = ['10pt']
-        
-        skip_node = False
-        skip_message = []
-        for cc in node.get('class',"").split(' '):
-            if cc in skip_these_classes:
-                skip_message.append("Skipped [%s] because node matches class [%s]\n    Text was: [%s]" % (tree.getpath(node), cc, node.text))
-                skip_node = True
-        if node.get('id',None) in skip_these_ids:
-            skip_message.append("Skipped [%s] because node id class [%s]\n    Text was: [%s]" % (tree.getpath(node), node.get('id'), node.text))
-            skip_node = True
-
-        for styles in get_applicable_styles(node):
-            if "display" in styles.keys() and styles['display'].lower() == 'none':
-                skip_node = True
-            if "color" in styles.keys():
-                colors.append(normalise_color(styles['color']))
-            if "background-color" in styles.keys():
-                backgrounds.append(normalise_color(styles['background-color']))
-            if "font-size" in styles.keys():
-                fonts.append(styles['font-size'])
-
-        if skip_node:
-            if skip_message:
-                skipped.append({
-                    'xpath': tree.getpath(node),
-                    'message': "\n    ".join(skip_message),
-                    'classes': node.get('class'),
-                    'id': node.get('id'),
-                })
-            continue
-
-        ratio_threshold = WCAG_LUMINOCITY_RATIO_THRESHOLD.get(level)
-
-        foreground = generate_opaque_color(colors)
-        background = generate_opaque_color(backgrounds)
-        ratio = calculate_luminocity_ratio(foreground,background)
-
-        if ratio < ratio_threshold:
-            disp_text = nice_console_text(node.text)
-            message =(
-                    u"Insufficient contrast ({r:.2f}) for element - {xpath}"
-                    u"\n    Computed rgb values are == Foreground {fg} / Background {bg}"
-                    u"\n    Text was:         {text}"
-                    u"\n    Colored text was: {color_text}"
-                ).format(
-                    xpath=tree.getpath(node),
-                    text=disp_text,
-                    fg=foreground,
-                    bg=background,
-                    r=ratio,
-                    color_text=colorize(
-                        disp_text,
-                        rgb = int('0x%s'%webcolors.rgb_to_hex(foreground)[1:], 16),
-                        bg = int('0x%s'%webcolors.rgb_to_hex(background)[1:], 16),
-                    )
-                )
-
-            failures.append({
-                'guideline': '1.4.3',
-                'technique': 'H37',
-                'xpath': tree.getpath(node),
-                'message': message,
-                'classes': node.get('class'),
-                'id': node.get('id'),
-            })
-        else:
-            success += 1  # I like what you got!
-
-    return {
-        "success": success,
-        "failures": failures,
-        "warnings": warnings,
-        "skipped": skipped
-    }
-
 class Molerat(WCAGCommand):
     """
     Molerat checks color contrast in a HTML string against the WCAG2.0 standard
@@ -264,7 +138,6 @@ class Molerat(WCAGCommand):
             return True
 
     def validate_element(self, node):
-        print(node)
 
         # set some sensible defaults that we can recognise while debugging.
         colors = [[1,2,3,1]]  # Black-ish
@@ -285,8 +158,7 @@ class Molerat(WCAGCommand):
         foreground = generate_opaque_color(colors)
         background = generate_opaque_color(backgrounds)
         ratio = calculate_luminocity_ratio(foreground,background)
-        print(ratio < ratio_threshold)
-        print(ratio, ratio_threshold)
+
         if ratio < ratio_threshold:
             disp_text = nice_console_text(node.text)
             message =(

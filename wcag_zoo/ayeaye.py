@@ -1,5 +1,4 @@
-﻿import click
-from wcag_zoo.utils import print_if, common_cli, common_wcag, get_tree, build_msg, WCAGCommand
+﻿from wcag_zoo.utils import WCAGCommand
 
 error_codes = {
     1: "Duplicate `accesskey` attribute '{key}' found. First seen at element {elem}",
@@ -7,63 +6,6 @@ error_codes = {
     3: "No `accesskey` attributes found, consider adding some to improve keyboard accessibility",
 }
 
-@common_wcag(animal="""The aye-aye is a lemur which lives in rain forests of Madagascar, a large island off the southeast coast of Africa.
-The aye-aye has rodent-like teeth and a special thin middle finger to get at the insect grubs under tree bark.
-
-- https://simple.wikipedia.org/wiki/Aye-aye""")
-def ayeaye(html, level="AA", verbosity=1, **kwargs):
-    """
-    Checks for the existance of access key attributes within a HTML document and confirms their uniqueness.
-    Fails if any duplicate access keys are found in the document
-    Warns if no access keys are found in the document
-    """
-
-    tree = get_tree(html)
-    
-    success = 0
-    failed=0
-    failures = []
-    warnings = []
-    skipped = []
-
-    # find all nodes that have access keys
-    access_key_elems = tree.xpath('/html/body//*[@accesskey]')
-    found_keys = {}
-    for node in access_key_elems:
-        access_key = node.get('accesskey')
-        if not access_key:
-            # Blank or empty
-            failures.append(build_msg(
-                guideline = '2.1.1',
-                technique = 'G20',
-                node = node,
-                message =  error_codes[2].format(elem=tree.getpath(node)),
-            ))
-        elif access_key not in found_keys.keys():
-            success += 1
-            found_keys[access_key] = tree.getpath(node)
-        else:
-            failures.append(build_msg(
-                guideline = '2.1.1',
-                technique = 'G20',
-                node = node,
-                message =  error_codes[1].format(key=access_key,elem=found_keys[access_key]),
-            ))
-
-    if len(access_key_elems) == 0:
-        warnings.append(build_msg(
-            guideline = '2.1.1',
-            technique = 'G20',
-            node = tree.xpath('/html/body')[0],
-            message =  error_codes[3]
-        ))
-
-    return {
-        "success": success,
-        "failures": failures,
-        "warnings": warnings,
-        "skipped": skipped
-    }
 
 class Ayeaye(WCAGCommand):
     """
