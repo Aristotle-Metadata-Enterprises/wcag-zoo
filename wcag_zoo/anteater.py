@@ -12,7 +12,8 @@ class Anteater(WCAGCommand):
     xpath = '/html/body//img'
 
     error_codes = {
-        1: "Duplicate `accesskey` attribute '{key}' found. First seen at element {elem}",
+        1: "Missing alt tag on image for element",
+        2: "Blank alt tag on image for element",
     }
 
     def validate_element(self, node):
@@ -30,6 +31,7 @@ class Anteater(WCAGCommand):
                 'technique': 'H37',
                 'node': node,
                 'message': message,
+                'error_code': 1
             })
         elif node.get('alt') == "":
             message =(

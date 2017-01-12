@@ -115,10 +115,11 @@ class WCAGCommand(object):
     skipped = []
     documents = 0
     def __init__(self, *args, **kwargs):
-        self.skip_these_classes = kwargs['skip_these_classes']
-        self.skip_these_ids = kwargs['skip_these_ids']
-        self.level = kwargs['level']
+        self.skip_these_classes = kwargs.get('skip_these_classes', [])
+        self.skip_these_ids = kwargs.get('skip_these_ids', [])
+        self.level = kwargs.get('level', "AA")
         self.kwargs = kwargs
+        print("skippppppper", self.kwargs.get('ignore_hidden'))
 
     def add_failure(self, **kwargs):
         self.failures.append(build_msg(**kwargs))

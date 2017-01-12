@@ -1,9 +1,16 @@
-<html>
+<html data-wcag-test-command="anteater ignore_hidden=True level=AA">
+    <head>
+        <style>
+            .hidden {
+                display: none;
+            }
+        </style>
+    </head>
     <body>
-        <img src="/cute/bunny.gif"> This is terrible, this bunny has no alt tag. How will people know how cute it is? 
-        <img src="/cute/kitty.gif" alt=""> This image is purely decorative, so a blank alt tag is needed.
-        <img src="/cute/puppy.gif" alt="This puppy is so gosh darn cute I needed people to know">
-        <img src="/cute/batty.gif" class="hidden"> This bat is hiding, it won't be seen
-        <img src="/cute/puppy.gif" style="display:none"> This birdy isn't even worth looking at
+        <img src="/cute/bunny.gif" data-wcag="fail" data-wcag-fail-code="anteater-1"> This is terrible, this bunny has no alt tag. How will people know how cute it is? 
+        <img src="/cute/kitty.gif" alt="" data-wcag-success="1"> This image is purely decorative, so a blank alt tag is needed.
+        <img src="/cute/puppy.gif" alt="This puppy is so gosh darn cute I needed people to know"  data-wcag-success="1">
+        <img src="/cute/batty.gif" class="hidden" data-wcag-success="1"> This bat is hiding, it won't be seen
+        <img src="/cute/puppy.gif" style="display:none" data-wcag-success="1"> This birdy isn't even worth looking at
     </body>
 </html>
