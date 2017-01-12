@@ -2,12 +2,18 @@ WCAG 2.0 Index
 ==============
 
 - 1.1.1 - Nontext Content - Anteater
+  * H37 - Alt-tags
+
 - 1.3.1 - Info and Relationships
   * headings - Tarsier
 - 2.1.1 - Keyboard (check for accesskeys) ayeaye **
 
 
 Future additions
+- 1.1.1 - Nontext Content - Anteater
+  * H53, H44
+  * H36 - Make sure input tags with src have alt or text
+  * H30 - Make sure links have text
 - 1.2.3 - Audio Description or Media Alternative (Prerecorded)  - H96
 - 1.3.1 - Info and Relationships
   * tables - H39, no nested tables

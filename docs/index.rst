@@ -3,18 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to WCAG-Zoo's documentation!
-====================================
+WCAG Zoo - Scripts for accessbility checking in integrated tests!
+=================================================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   api.rst
+   commands.rst
+   faq.rst
+   wcag.rst
+
+.. include:: ../README.rst
+  :start-after: rtd-inclusion-marker
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. include:: includes/indexes.rst

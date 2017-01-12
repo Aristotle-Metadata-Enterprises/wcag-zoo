@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <style>
+            .low-contrast {
+                /* Tom Haverford would be proud, but this is illegible */
+                color: white;
+                background-color: black;
+            }
+            .smaller-text {
+                font-size:80%
+            }
+            .bigger-text {
+                font-size:125%
+            }
+        </style>
+    </head>
+    <body style="font-size:12pt">
+        <p class="black-on-black" data-wcag="fail" data-wcag-fail-code="molerat-1">Tom Haverford</p>
+        <div class="invisible">
+            <p class="black-on-black" data-wcag="fail" data-wcag-fail-code="molerat-1" >John Ralphio</p>
+        </div>
+        <div class="bigger-text">
+            This is hard to read.
+            <div class="bigger-text">
+                This is better!
+            </div>
+        </div>
+        <div style="font-size:20px">
+            Here is text specified in pixels.
+            <p class="bigger-text">
+                And just a bit bigger.
+            </p>
+        </div>
+        <div style="font-size:10px; color:lightgray; background-color:darkslategray">
+            Here is text specified in pixels.
+            <p class="bigger-text">
+                And just a bit bigger.
+            </p>
+        </div>
+    </body>
+</html>

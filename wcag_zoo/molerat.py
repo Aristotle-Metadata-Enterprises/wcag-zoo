@@ -5,21 +5,24 @@ import os, sys
 import webcolors 
 import click
 from xtermcolor import colorize
-from wcag_zoo.utils import WCAGCommand, print_if, common_cli, common_wcag, get_tree, nice_console_text, get_applicable_styles
+from wcag_zoo.utils import WCAGCommand, get_applicable_styles
 
 import logging
 import cssutils
 cssutils.log.setLevel(logging.CRITICAL)
 
-WCAG_LUMINOCITY_RATIO_THRESHOLD = {"AA": 4.5, "AAA": 7}
-
-error_codes = {
+WCAG_LUMINOCITY_RATIO_THRESHOLD = {
+    "AA": {
+        'normal': 4.5,
+        'large': 3,
+    },
+    "AAA": {
+        'normal': 7,
+        'large': 4.5,
+    }
 }
 
-
-
 def normalise_color(color):
-    import webcolors as W
     rgba_color = None
     
     if "transparent" in color or "inherit" in color:
@@ -30,9 +33,9 @@ def normalise_color(color):
         rgba_color = map(float, color.split('(')[1].split(')')[0].split(','))
     else:
         funcs = [
-            W.hex_to_rgb,
-            W.name_to_rgb,
-            W.rgb_percent_to_rgb
+            webcolors.hex_to_rgb,
+            webcolors.name_to_rgb,
+            webcolors.rgb_percent_to_rgb
         ]
         
         for func in funcs:
@@ -92,6 +95,47 @@ def generate_opaque_color(color_stack):
 
     return [int(red), int(green), int(blue)]
 
+def calculate_font_size(font_stack):
+    """
+    From a list of font declarations with absolute and relative fonts, generate an approximate rendered font-size in point (not pixels).
+    """
+    font_size = 10  #10 pt *not 10px*!!
+
+    for font_declarations in font_stack:
+        if font_declarations.get('font-size', None):
+            size = font_declarations.get('font-size')
+        elif font_declarations.get('font', None):
+            # Font-size should be the first in a declaration, so we can just use it and split down below.
+            size = font_declarations.get('font')
+
+        if 'pt' in size:
+            font_size = int(size.split('pt')[0])
+        elif 'px' in size:
+            font_size = int(size.split('px')[0]) * 0.75 # WCAG claims about 0.75 pt per px
+        elif '%' in size:
+            font_size = font_size * float(size.split('%')[0])/100
+        #TODO: em and en
+    return font_size
+
+def is_font_bold(font_stack):
+    """
+    From a list of font declarations determine the font weight.
+    """
+    # Note: Bolder isn't relative!!
+    is_bold = False
+
+    for font_declarations in font_stack:
+        weight = font_declarations.get('weight', "")
+        if 'bold' in weight or 'bold' in font_declarations.get('font', ""):
+            # Its bold! THe rest of the rules don't matter
+            return True
+        elif '0' in weight:
+            # its a number!
+            # Return if it is bold. The rest of the rules don't matter
+            return int(weight) > 500 # Todo Whats the threshold for 'bold'??
+        # TODO: What if weight is defined in the 'font' rule?
+
+    return is_bold
 
 def calculate_luminocity_ratio(foreground, background):
     L2, L1 = sorted([
@@ -127,7 +171,8 @@ class Molerat(WCAGCommand):
     xpath = '/html/body//*[text()!=""]'
 
     error_codes = {
-        1: "Duplicate `accesskey` attribute '{key}' found. First seen at element {elem}",
+        1: u"Insufficient contrast ({r:.2f}) for text at element - {xpath}",
+        2: u"Insufficient contrast ({r:.2f}) for large text element at element- {xpath}"
     }
 
     def skip_element(self, node):
@@ -142,7 +187,10 @@ class Molerat(WCAGCommand):
         # set some sensible defaults that we can recognise while debugging.
         colors = [[1,2,3,1]]  # Black-ish
         backgrounds = [[254,253,252,1]]  # White-ish
-        fonts = ['10pt']
+        fonts = [{
+            'font-size': '10pt',
+            'font-weight': 'normal'
+         }]
 
         
         for styles in get_applicable_styles(node):
@@ -150,22 +198,32 @@ class Molerat(WCAGCommand):
                 colors.append(normalise_color(styles['color']))
             if "background-color" in styles.keys():
                 backgrounds.append(normalise_color(styles['background-color']))
-            if "font-size" in styles.keys():
-                fonts.append(styles['font-size'])
+            font_rules = {}
+            for rule in styles.keys():
+                if 'font' in rule:
+                    font_rules[rule] = styles[rule]
+            fonts.append(font_rules)
 
-        ratio_threshold = WCAG_LUMINOCITY_RATIO_THRESHOLD.get(self.level)
-
+        font_size = calculate_font_size(fonts)
+        font_is_bold = is_font_bold(fonts)
         foreground = generate_opaque_color(colors)
         background = generate_opaque_color(backgrounds)
         ratio = calculate_luminocity_ratio(foreground,background)
 
+        font_size_type = 'normal'
+        error_code = 1
+        if font_size > 18:# or font_size > 14 and font_is_bold:
+            font_size_type = 'large'
+            error_code = 2
+
+        ratio_threshold = WCAG_LUMINOCITY_RATIO_THRESHOLD.get(self.level).get(font_size_type)
+
         if ratio < ratio_threshold:
             disp_text = nice_console_text(node.text)
-            message =(
-                    u"Insufficient contrast ({r:.2f}) for element - {xpath}"
+            message =(self.error_codes[error_code] +
                     u"\n    Computed rgb values are == Foreground {fg} / Background {bg}"
                     u"\n    Text was:         {text}"
-                    u"\n    Colored text was: {color_text}"
+                    u"\n    Colored text was: {color_text}"                    
                 ).format(
                     xpath=node.getroottree().getpath(node),
                     text=disp_text,
@@ -178,6 +236,16 @@ class Molerat(WCAGCommand):
                         bg = int('0x%s'%webcolors.rgb_to_hex(background)[1:], 16),
                     )
                 )
+
+            if self.kwargs.get('verbosity', 1) > 2:
+                if ratio < WCAG_LUMINOCITY_RATIO_THRESHOLD.get(self.level).get('normal'):
+                    message += u"\n   Hint: Increase the contrast of this text to fix this error"
+                elif font_size_type is 'normal':
+                    message += u"\n   Hint: Increase the contrast, size or font-weight of the text to fix this error"
+                elif font_is_bold:
+                    message += u"\n   Hint: Increase the contrast or size of the text to fix this error"
+                elif font_size_type is 'large':
+                    message += u"\n   Hint: Increase the contrast or font-weight of the text to fix this error"
 
             self.add_failure(
                 guideline = '1.4.3',
