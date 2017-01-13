@@ -1,4 +1,4 @@
-﻿from wcag_zoo.utils import WCAGCommand
+from wcag_zoo.utils import WCAGCommand
 
 error_codes = {
     1: "Duplicate `accesskey` attribute '{key}' found. First seen at element {elem}",
@@ -35,10 +35,11 @@ class Ayeaye(WCAGCommand):
         iterations = self.run_validation_loop()
         if len(self.tree.xpath('/html/body//*[@accesskey]')) == 0:
             self.add_warning(
-                guideline = '2.1.1',
-                technique = 'G20',
-                node = self.tree.xpath('/html/body')[0],
-                message =  Ayeaye.error_codes[3]
+                guideline='2.1.1',
+                technique='G20',
+                node=self.tree.xpath('/html/body')[0],
+                message=Ayeaye.error_codes[3],
+                error_code=3,
             )
 
         return {
@@ -53,20 +54,22 @@ class Ayeaye(WCAGCommand):
         if not access_key:
             # Blank or empty
             self.add_failure(
-                guideline = '2.1.1',
-                technique = 'G20',
-                node = node,
-                message =  Ayeaye.error_codes[2].format(elem=node.getroottree().getpath(node)),
+                guideline='2.1.1',
+                technique='G20',
+                node=node,
+                error_code=2,
+                message=Ayeaye.error_codes[2].format(elem=node.getroottree().getpath(node)),
             )
         elif access_key not in self.found_keys.keys():
             self.success += 1
             self.found_keys[access_key] = node.getroottree().getpath(node)
         else:
             self.add_failure(
-                guideline = '2.1.1',
-                technique = 'G20',
-                node = node,
-                message =  Ayeaye.error_codes[1].format(key=access_key,elem=self.found_keys[access_key]),
+                guideline='2.1.1',
+                technique='G20',
+                node=node,
+                error_code=1,
+                message=Ayeaye.error_codes[1].format(key=access_key, elem=self.found_keys[access_key]),
             )
 
 if __name__ == "__main__":

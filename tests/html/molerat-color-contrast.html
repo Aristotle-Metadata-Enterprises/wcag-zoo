@@ -1,13 +1,11 @@
-<html>
+<html data-wcag-test-command="molerat level='AA' ignore_hidden=True staticpath='./static'">
     <head>
+        <link rel="stylesheet" href="styles.css" type="text/css">
         <style>
-            .invisible {
-                display: none;
-            }
             .black-on-black {
                 /* Tom Haverford would be proud, but this is illegible */
-                color: black;
-                background-color: black;
+                color: rgb(0,0,0);
+                background-color: rgba(0,0,0, 1);
             }
             .habdashery {
                 /* Grandma would be proud, but this is illegible */
@@ -17,11 +15,11 @@
         </style>
     </head>
     <body>
-        <p class="black-on-black" data-wcag="fail" data-wcag-fail-code="molerat-1">Tom Haverford</p>
+        <p class="black-on-black" data-wcag-fail-code="molerat-1">Tom Haverford</p>
         <div class="invisible">
-            <p class="black-on-black" data-wcag="fail" data-wcag-fail-code="molerat-1" data-wcag-fail-on-flag="validate_hidden">John Ralphio</p>
+            <p class="black-on-black">John Ralphio</p>
         </div>
-        <p class="habdashery" data-wcag="fail" data-wcag-fail-code="molerat-1">
+        <p class="habdashery" data-wcag-fail-code="molerat-1">
             This is hard to read.
             <span style="color:#00000" data-wcag="success">
                 This is better!

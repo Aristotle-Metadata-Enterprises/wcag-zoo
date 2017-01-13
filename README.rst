@@ -1,5 +1,5 @@
-WCAG Zoo - Scripts for accessbility checking in integrated tests
-================================================================
+WCAG Zoo - Scripts for automated accessiblity validation
+========================================================
 
 .. rtd-inclusion-marker
 

@@ -1,4 +1,4 @@
-﻿from wcag_zoo.utils import WCAGCommand
+from wcag_zoo.utils import WCAGCommand
 
 # https://www.w3.org/TR/WCAG20-TECHS/H37.html
 # https://www.w3.org/TR/WCAG20-TECHS/H67.html
@@ -18,13 +18,13 @@ class Anteater(WCAGCommand):
 
     def validate_element(self, node):
         if node.get('alt') is None:
-            message =(
-                    u"Missing alt tag on image for element - {xpath}"
-                    u"\n    Image was: {img_url}"
-                ).format(
+            message = (
+                u"Missing alt tag on image for element - {xpath}"
+                u"\n    Image was: {img_url}"
+            ).format(
                 xpath=node.getroottree().getpath(node),
                 img_url=node.get('src')
-                )
+            )
 
             self.add_failure(**{
                 'guideline': '1.1.1',
@@ -34,20 +34,21 @@ class Anteater(WCAGCommand):
                 'error_code': 1
             })
         elif node.get('alt') == "":
-            message =(
-                    u"Blank alt tag on image for element - {xpath}"
-                    u"\n    Image was: {img_url}"
-                    u"\n    Only use blank alt tags when an image is purely decorative."
-                ).format(
+            message = (
+                u"Blank alt tag on image for element - {xpath}"
+                u"\n    Image was: {img_url}"
+                u"\n    Only use blank alt tags when an image is purely decorative."
+            ).format(
                 xpath=node.getroottree().getpath(node),
                 img_url=node.get('src')
-                )
+            )
 
             self.add_warning(**{
                 'guideline': '1.1.1',
                 'technique': 'H37',
                 'node': node,
                 'message': message,
+                'error_code': 2
             })
         else:
             self.success += 1

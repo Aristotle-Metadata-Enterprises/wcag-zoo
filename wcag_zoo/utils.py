@@ -1,6 +1,7 @@
-﻿from __future__ import print_function
+from __future__ import print_function
 from lxml import etree
 import click
+import os
 import sys
 from io import StringIO
 from functools import wraps
@@ -47,6 +48,7 @@ class Premoler(Premailer):
 
         return css_body
 
+
 def print_if(*args, **kwargs):
     check = kwargs.pop('check', False)
     if check and len(args) > 0 and args[0]:
@@ -55,9 +57,9 @@ def print_if(*args, **kwargs):
 
 
 def nice_console_text(text):
-    text = text.strip().replace('\n',' ').replace('\r',' ').replace('\t',' ')
+    text = text.strip().replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
     if len(text) > 70:
-        text = text[:70]+"..."
+        text = text[:70] + "..."
     return text
 
 
@@ -72,7 +74,7 @@ def get_applicable_styles(node):
     """
     styles = []
     for parent in node.xpath('ancestor-or-self::*[@style]'):
-        style = parent.get('style',"")
+        style = parent.get('style', "")
 
         if not style:
             continue
@@ -94,7 +96,7 @@ def build_msg(node, **kwargs):
     """
     error_dict = kwargs
     error_dict.update({
-        'xpath' : node.getroottree().getpath(node),
+        'xpath': node.getroottree().getpath(node),
         'classes': node.get('class'),
         'id': node.get('id'),
     })
@@ -107,19 +109,17 @@ class WCAGCommand(object):
     """
     animal = None
     level = 'AA'
-    
-    success = 0
-    failed=0
-    failures = []
-    warnings = []
-    skipped = []
-    documents = 0
+
     def __init__(self, *args, **kwargs):
         self.skip_these_classes = kwargs.get('skip_these_classes', [])
         self.skip_these_ids = kwargs.get('skip_these_ids', [])
         self.level = kwargs.get('level', "AA")
         self.kwargs = kwargs
-        print("skippppppper", self.kwargs.get('ignore_hidden'))
+
+        self.success = 0
+        self.failures = []
+        self.warnings = []
+        self.skipped = []
 
     def add_failure(self, **kwargs):
         self.failures.append(build_msg(**kwargs))
@@ -133,7 +133,7 @@ class WCAGCommand(object):
     def skip_element(self, node):
         """
         Method for adding extra checks to determine if an HTML element should be skipped by the validation loop.
-        
+
         Override this to add custom skip logic to a wcag command.
 
         Return true to skip validation of the given node.
@@ -151,28 +151,34 @@ class WCAGCommand(object):
         Returns True if the node is to be skipped.
         """
         skip_node = False
-        skip_message = ""
-        for cc in node.get('class',"").split(' '):
+        skip_message = []
+        for cc in node.get('class', "").split(' '):
             if cc in self.skip_these_classes:
-                skip_message.append("Skipped [%s] because node matches class [%s]\n    Text was: [%s]" % (tree.getpath(node), cc, node.text))
+                skip_message.append("Skipped [%s] because node matches class [%s]\n    Text was: [%s]" % (self.tree.getpath(node), cc, node.text))
                 skip_node = True
-        if node.get('id',None) in self.skip_these_ids:
-            skip_message.append("Skipped [%s] because node id is [%s]\n    Text was: [%s]" % (tree.getpath(node), node.get('id'), node.text))
+        if node.get('id', None) in self.skip_these_ids:
+            skip_message.append("Skipped [%s] because node id is [%s]\n    Text was: [%s]" % (self.tree.getpath(node), node.get('id'), node.text))
             skip_node = True
         if self.skip_element(node):
             skip_node = True
 
         for styles in get_applicable_styles(node):
             # skip hidden elements
-            if not self.kwargs.get('ignore_hidden', False):
+            if self.kwargs.get('ignore_hidden', False):
                 if "display" in styles.keys() and styles['display'].lower() == 'none':
+                    skip_message.append(
+                        "Skipped [%s] because display is none is [%s]\n    Text was: [%s]" % (self.tree.getpath(node), node.get('id'), node.text)
+                    )
                     skip_node = True
                 if "visibility" in styles.keys() and styles['visibility'].lower() == 'hidden':
+                    skip_message.append(
+                        "Skipped [%s] because visibility is hidden is [%s]\n    Text was: [%s]" % (self.tree.getpath(node), node.get('id'), node.text)
+                    )
                     skip_node = True
 
-        if skip_message:
+        if skip_node:
             self.skipped.append({
-                'xpath': tree.getpath(node),
+                'xpath': self.tree.getpath(node),
                 'message': "\n    ".join(skip_message),
                 'classes': node.get('class'),
                 'id': node.get('id'),
@@ -209,7 +215,7 @@ class WCAGCommand(object):
         By default, returns nothing.
         """
         pass
-        
+
     def validate_element(self, node):
         """
         Validate a single node from a HTML element tree. Errors and warnings are attached to the instances ``failures`` and ``warnings``
@@ -226,7 +232,7 @@ class WCAGCommand(object):
                 exclude_pseudoclasses=True,
                 method="html",
                 preserve_internal_links=True,
-                base_path=self.kwargs.get('staticpath','.'),
+                base_path=self.kwargs.get('staticpath', '.'),
                 include_star_selectors=True,
                 strip_important=False,
                 disable_validation=True
@@ -248,6 +254,18 @@ class WCAGCommand(object):
                 self.validate_element(element)
             else:
                 validator(element)
+
+    def validate_file(self, filename):
+        """
+        Validates a file given as a string filenames
+
+        By returns a dictionary of results from ``validate_document``.
+        """
+        with open(filename) as file:
+            html = file.read()
+    
+            results = self.validate_document(html)
+            return results
 
     def validate_files(self, *filenames):
         """
@@ -282,8 +300,8 @@ class WCAGCommand(object):
             kwargs['level'] = kwargs['level'] or short_level or 'AA'
             verbosity = kwargs.get('verbosity')
             warnings_as_errors = kwargs.pop('warnings_as_errors', False)
-            kwargs['skip_these_classes'] = [c.strip() for c in kwargs.get('skip_these_classes').split(',') if c]
-            kwargs['skip_these_ids'] = [c.strip() for c in kwargs.get('skip_these_ids').split(',') if c]
+            kwargs['skip_these_classes'] = [c.strip() for c in kwargs.get('skip_these_classes').split(', ') if c]
+            kwargs['skip_these_ids'] = [c.strip() for c in kwargs.get('skip_these_ids').split(', ') if c]
             if kwargs.pop('animal', None):
                 print(__function__.animal)
                 sys.exit(0)
@@ -299,7 +317,7 @@ class WCAGCommand(object):
                         html = f.read()
                         if hasattr(html, 'decode'):  # Forgive me: Python 2 compatability
                             html = html.decode('utf-8')
-            
+
                         results = klass.validate_document(html)
 
                         print_if(
@@ -328,23 +346,24 @@ class WCAGCommand(object):
                             "Finished - {filename}".format(filename=filename),
                             check=verbosity>1
                         )
-                        print_if("\n".join([
-                                    "         - {num_fail} failed",
-                                    "         - {num_warn} warnings",
-                                    "         - {num_good} succeeded",
-                                    "         - {num_skip} skipped",
-                                ]).format(
-                                    num_fail=len(results['failures']),
-                                    num_warn=len(results['warnings']),
-                                    num_skip=len(results['skipped']),
-                                    num_good=results['success']
-                                ),
+                        print_if(
+                            "\n".join([
+                                "         - {num_fail} failed",
+                                "         - {num_warn} warnings",
+                                "         - {num_good} succeeded",
+                                "         - {num_skip} skipped",
+                            ]).format(
+                                num_fail=len(results['failures']),
+                                num_warn=len(results['warnings']),
+                                num_skip=len(results['skipped']),
+                                num_good=results['success']
+                            ),
                             check=verbosity>1
                         )
                         total_results.append(results)
                 except IOError:
                     print("Tested at WCAG2.0 %s Level" % kwargs['level'])
-        
+
             print("Tested at WCAG2.0 %s Level" % kwargs['level'])
             print(
                 "{n_errors} errors, {n_warnings} warnings in {n_files} files".format(

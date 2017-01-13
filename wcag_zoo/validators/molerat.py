@@ -1,11 +1,12 @@
-﻿from __future__ import print_function, division
+from __future__ import print_function, division
 from premailer import Premailer
 from lxml import etree
-import os, sys
-import webcolors 
+import os
+import sys
+import webcolors
 import click
 from xtermcolor import colorize
-from wcag_zoo.utils import WCAGCommand, get_applicable_styles
+from wcag_zoo.utils import WCAGCommand, get_applicable_styles, nice_console_text
 
 import logging
 import cssutils
@@ -22,22 +23,23 @@ WCAG_LUMINOCITY_RATIO_THRESHOLD = {
     }
 }
 
+
 def normalise_color(color):
     rgba_color = None
-    
+
     if "transparent" in color or "inherit" in color:
-        rgba_color = [0,0,0,0.0]
+        rgba_color = [0, 0, 0, 0.0]
     elif color.startswith('rgb('):
-        rgba_color = map(int, color.split('(')[1].split(')')[0].split(','))
+        rgba_color = map(int, color.split('(')[1].split(')')[0].split(', '))
     elif color.startswith('rgba('):
-        rgba_color = map(float, color.split('(')[1].split(')')[0].split(','))
+        rgba_color = map(float, color.split('(')[1].split(')')[0].split(', '))
     else:
         funcs = [
             webcolors.hex_to_rgb,
             webcolors.name_to_rgb,
             webcolors.rgb_percent_to_rgb
         ]
-        
+
         for func in funcs:
             try:
                 rgba_color = list(func(color))
@@ -45,26 +47,26 @@ def normalise_color(color):
                 pass
 
     if rgba_color is None:
-        rgba_color = [0,0,0,1]
+        rgba_color = [0, 0, 0, 1]
     else:
         rgba_color = (list(rgba_color) + [1])[:4]
     return rgba_color
 
 
 def calculate_luminocity(r=0, g=0, b=0):
-    # Calculates luminocity according to 
+    # Calculates luminocity according to
     # https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
-    
+
     x = []
     for C in r, g, b:
-        c = C/255.0
+        c = C / 255.0
         if c < 0.03928:
             x.append(c / 12.92)
         else:
             x.append(((c + 0.055) / 1.055) ** 2.4)
-        
+
     R, G, B = x
-    
+
     L = 0.2126 * R + 0.7152 * G + 0.0722 * B
     return L
 
@@ -89,17 +91,18 @@ def generate_opaque_color(color_stack):
             continue
         da = 1 - a
         alpha = alpha + a * da
-        red   = (red * 0.25 + r * a * da) / alpha
+        red = (red * 0.25 + r * a * da) / alpha
         green = (green * 0.25 + g * a * da) / alpha
-        blue  = (blue * 0.25 + b * a * da) / alpha
+        blue = (blue * 0.25 + b * a * da) / alpha
 
     return [int(red), int(green), int(blue)]
+
 
 def calculate_font_size(font_stack):
     """
     From a list of font declarations with absolute and relative fonts, generate an approximate rendered font-size in point (not pixels).
     """
-    font_size = 10  #10 pt *not 10px*!!
+    font_size = 10  # 10 pt *not 10px*!!
 
     for font_declarations in font_stack:
         if font_declarations.get('font-size', None):
@@ -111,11 +114,12 @@ def calculate_font_size(font_stack):
         if 'pt' in size:
             font_size = int(size.split('pt')[0])
         elif 'px' in size:
-            font_size = int(size.split('px')[0]) * 0.75 # WCAG claims about 0.75 pt per px
+            font_size = int(size.split('px')[0]) * 0.75  # WCAG claims about 0.75 pt per px
         elif '%' in size:
-            font_size = font_size * float(size.split('%')[0])/100
-        #TODO: em and en
+            font_size = font_size * float(size.split('%')[0]) / 100
+        # TODO: em and en
     return font_size
+
 
 def is_font_bold(font_stack):
     """
@@ -132,10 +136,11 @@ def is_font_bold(font_stack):
         elif '0' in weight:
             # its a number!
             # Return if it is bold. The rest of the rules don't matter
-            return int(weight) > 500 # Todo Whats the threshold for 'bold'??
+            return int(weight) > 500  # TODO: Whats the threshold for 'bold'??
         # TODO: What if weight is defined in the 'font' rule?
 
     return is_bold
+
 
 def calculate_luminocity_ratio(foreground, background):
     L2, L1 = sorted([
@@ -145,26 +150,27 @@ def calculate_luminocity_ratio(foreground, background):
 
     return (L1 + 0.05) / (L2 + 0.05)
 
+
 class Molerat(WCAGCommand):
     """
     Molerat checks color contrast in a HTML string against the WCAG2.0 standard
-    
+
     It checks foreground colors against background colors taking into account
     opacity values and font-size to conform to WCAG2.0 Guidelines 1.4.3 & 1.4.6.
-    
+
     However, it *doesn't* check contrast between foreground colors and background images.
-    
+
     Paradoxically:
 
       a failed molerat check doesn't mean your page doesn't conform to WCAG2.0
-      
+
       but a successful molerat check doesn't mean your page will conform either...
-    
+
     Command line tools aren't a replacement for good user testing!
     """
 
     animal = """
-        
+
         - https://simple.wikipedia.org/wiki/Molerat
     """
 
@@ -176,23 +182,19 @@ class Molerat(WCAGCommand):
     }
 
     def skip_element(self, node):
-        
+
         if node.text is None or node.text.strip() == "":
             return True
-        if node.tag in ['script','style']:
+        if node.tag in ['script', 'style']:
             return True
 
     def validate_element(self, node):
 
         # set some sensible defaults that we can recognise while debugging.
-        colors = [[1,2,3,1]]  # Black-ish
-        backgrounds = [[254,253,252,1]]  # White-ish
-        fonts = [{
-            'font-size': '10pt',
-            'font-weight': 'normal'
-         }]
+        colors = [[1, 2, 3, 1]]  # Black-ish
+        backgrounds = [[254, 253, 252, 1]]  # White-ish
+        fonts = [{'font-size': '10pt', 'font-weight': 'normal'}]
 
-        
         for styles in get_applicable_styles(node):
             if "color" in styles.keys():
                 colors.append(normalise_color(styles['color']))
@@ -208,11 +210,11 @@ class Molerat(WCAGCommand):
         font_is_bold = is_font_bold(fonts)
         foreground = generate_opaque_color(colors)
         background = generate_opaque_color(backgrounds)
-        ratio = calculate_luminocity_ratio(foreground,background)
+        ratio = calculate_luminocity_ratio(foreground, background)
 
         font_size_type = 'normal'
         error_code = 1
-        if font_size > 18:# or font_size > 14 and font_is_bold:
+        if font_size > 18 or font_size > 14 and font_is_bold:
             font_size_type = 'large'
             error_code = 2
 
@@ -220,22 +222,23 @@ class Molerat(WCAGCommand):
 
         if ratio < ratio_threshold:
             disp_text = nice_console_text(node.text)
-            message =(self.error_codes[error_code] +
-                    u"\n    Computed rgb values are == Foreground {fg} / Background {bg}"
-                    u"\n    Text was:         {text}"
-                    u"\n    Colored text was: {color_text}"                    
-                ).format(
-                    xpath=node.getroottree().getpath(node),
-                    text=disp_text,
-                    fg=foreground,
-                    bg=background,
-                    r=ratio,
-                    color_text=colorize(
-                        disp_text,
-                        rgb = int('0x%s'%webcolors.rgb_to_hex(foreground)[1:], 16),
-                        bg = int('0x%s'%webcolors.rgb_to_hex(background)[1:], 16),
-                    )
+            message = (
+                self.error_codes[error_code] +
+                u"\n    Computed rgb values are == Foreground {fg} / Background {bg}"
+                u"\n    Text was:         {text}"
+                u"\n    Colored text was: {color_text}"
+            ).format(
+                xpath=node.getroottree().getpath(node),
+                text=disp_text,
+                fg=foreground,
+                bg=background,
+                r=ratio,
+                color_text=colorize(
+                    disp_text,
+                    rgb=int('0x%s' % webcolors.rgb_to_hex(foreground)[1:], 16),
+                    bg=int('0x%s' % webcolors.rgb_to_hex(background)[1:], 16),
                 )
+            )
 
             if self.kwargs.get('verbosity', 1) > 2:
                 if ratio < WCAG_LUMINOCITY_RATIO_THRESHOLD.get(self.level).get('normal'):
@@ -248,10 +251,11 @@ class Molerat(WCAGCommand):
                     message += u"\n   Hint: Increase the contrast or font-weight of the text to fix this error"
 
             self.add_failure(
-                guideline = '1.4.3',
-                technique = 'H37',
-                node = node,
-                message = message,
+                guideline='1.4.3',
+                technique='H37',
+                node=node,
+                message=message,
+                error_code=error_code
             )
         else:
             self.success += 1  # I like what you got!

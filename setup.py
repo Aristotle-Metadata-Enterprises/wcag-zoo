@@ -32,9 +32,7 @@ setup(
     ],
     entry_points = {
           'console_scripts': [
-              'anteater = wcag_zoo.anteater:anteater_cli',                  
-              'molerat = wcag_zoo.molerat:molerat_cli',                  
-              'tarsier = wcag_zoo.tarsier:anteater_cli',                  
+              'zookeeper = wcag_zoo.zookeeper:zookeeper',                  
           ],              
       },
     install_requires = [
@@ -42,6 +40,7 @@ setup(
         "premailer",
         "webcolors",
         "click",
+        "xtermcolor",
     ],
 
 )
