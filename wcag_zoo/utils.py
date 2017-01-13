@@ -263,7 +263,7 @@ class WCAGCommand(object):
         """
         with open(filename) as file:
             html = file.read()
-    
+
             results = self.validate_document(html)
             return results
 
