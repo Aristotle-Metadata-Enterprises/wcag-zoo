@@ -4,6 +4,7 @@ from lxml import etree
 from ast import literal_eval
 import sys
 import os
+from utils import get_wcag_class
 
 
 def test_file(filename):
@@ -20,7 +21,7 @@ def test_file(filename):
             for t in test.split(' ')[1:]
         ])
 
-        exec("from wcag_zoo.validators.%s import %s as test_cls" % (command, command.title()))
+        test_cls = get_wcag_class(command)
         staticpath = kwargs.pop('staticpath', None)
         if staticpath:
             kwargs['staticpath'] = os.path.join(path, staticpath)

@@ -103,6 +103,13 @@ def build_msg(node, **kwargs):
     return error_dict
 
 
+def get_wcag_class(command):
+    from importlib import import_module
+    module = import_module("wcag_zoo.validators.%s" % command.lower())
+    klass = getattr(module, command.title())
+    return klass
+
+
 class WCAGCommand(object):
     """
     The base class for all WCAG validation commands
