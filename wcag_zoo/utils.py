@@ -392,7 +392,7 @@ class WCAGCommand(object):
                         total_results.append(results)
                     except IOError:
                         print("Tested at WCAG2.0 %s Level" % kwargs['level'])
-    
+
                 print("Tested at WCAG2.0 %s Level" % kwargs['level'])
                 print(
                     "{n_errors} errors, {n_warnings} warnings in {n_files} files".format(

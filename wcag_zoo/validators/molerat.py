@@ -176,7 +176,6 @@ class Molerat(WCAGCommand):
         The animal has unusual features, adapted to its harsh underground environment.
         The animals do not feel pain in their skin. They also have a very low metabolism.
 
-
         - https://simple.wikipedia.org/wiki/Naked_mole_rat
     """
 
