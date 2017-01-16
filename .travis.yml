@@ -13,7 +13,7 @@ before_script:
   - cd docs ; sphinx-build -nW -b html -d _build/doctrees . _build/html ; cd ..
 # command to run tests
 script:
-  - coverage run --branch --source=wcag_zoo testrunner.py tests/html/*.html
+  - coverage run --branch --source=wcag_zoo wcag_zoo/testrunner.py tests/html/*.html
 after_success:
   - coverage report
   - coveralls
