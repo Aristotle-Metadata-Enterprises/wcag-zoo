@@ -12,7 +12,7 @@ By default, all WCAG commands check that hidden elements are valid, however they
 such as those contained in elements that have a ``display:none`` or ``visibility:hidden`` directive.
 
 Why does my page fail a contrast check when the contrast between foreground text color and a background image is really high?
-----------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------
 
 Molerat can't see images and determines text contrast by checking the contrast between the calculated CSS rules for the
 foreground color (``color``) and background color (``background-color``) of a HTML element. If the element hasn't got a 
@@ -36,8 +36,8 @@ If the connection is interrupted or a user has images disabled, the text would b
 **The ideal way to resolve this is to add a background color to the inner ``div`` to ensure all users can read it.**
 If this isn't possible, to resolve this error, add the class or id to the appropriate exclusion rule. For example, from the command line::
 
-    molerat somefile.html --skip_these_classes=inner
-    molerat somefile.html --skip_these_ids=hero_text
+    zookeeper molerat somefile.html --skip_these_classes=inner
+    zookeeper molerat somefile.html --skip_these_ids=hero_text
 
 Or when calling as a module::
 

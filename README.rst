@@ -39,42 +39,78 @@ If you care about working in any of the above sectors, being able to *prove* you
 But all my pages are dynamically created and I use a CSS pre-processor
 ----------------------------------------------------------------------
 
-Doesn't matter. If you can generate them, you can output your HTML them in a build script and feed them in
+Doesn't matter. If you can generate them, you can output your HTML and CSS in a build script
+and feed them into the WCAG-Zoo via the command line.
 
 
-But I have lots of user-generated content!
-------------------------------------------
+But I have lots of user-generated content! How can I possibly test that?
+------------------------------------------------------------------------
 
-Doesn't matter. Besides, since this is a Python library, if you are a Python
+It doesn't matter if your site is mostly user-generated pages. Testing what you can sets a good example
+to your users. Plus many front-end WYSIWYG editors have their own compliance checkers too.
+This also sets a good example to your end-users as they know that the rest of the site is WCAG-Compliant
+so they should probably endevour to make sure their own content is too.
+
+Since this is a Python library if you are building a dynamic site where end users can edit HTML that
+uses Python on the server side you can import any of the validators directly into your code
+so you can confirm that the user created markup is valid as well.
+
+Lastly, if you are building a dynamic site in a language other than Python you can run any of the command
+line scripts with the ``--json`` or ``-J`` flag and this will produce a JSON output that can be parsed and
+used in your preferred target language.
+
+For details on this see the section in the documentation titled "Using WCAG-Zoo in languages other than Python".
 
 Do I have to check *every* page?
 --------------------------------
 
-The good news is probably not. If your CSS is reused across across lots of your site then checking a handful of generate pages is probably good enough.
+The good news is probably not. If your CSS is reused across across lots of your site
+then checking a handful of generate pages is probably good enough.
 
 You convinced me, how do I use it?
 ----------------------------------
 
 Two ways:
 
-1. In your build and tests scripts, generate some HTML files and use the command line tools so
- that you can verify your that the CSS and HTML you output can be read.
- 
-2. If you are using Python, once installed from pip, you can import any or all of the tools and
- inspect the messages and errors directly using::
+1. `In your build and tests scripts, generate some HTML files and use the command line tools so that
+   you can verify your that the CSS and HTML you output can be read. <development/using_wcag_zoo_not_in_python.html>`_
 
-   from wcag_zoo.molerat import molerat
-   messages = molerat(html=some_text, ... )
-   assert len(messages['failed']) == 0
+2. `If you are using Python, once installed from pip, you can import any or all of the tools and
+   inspect the messages and errors directly using <development/using_wcag_zoo_in_python.html>`_::
+
+       from wcag_zoo.molerat import molerat
+       messages = molerat(html=some_text, ... )
+       assert len(messages['failed']) == 0
+
 
 I've done all that can I have a badge?
 --------------------------------------
 
-Of course! Pick one of these:
+Of course! You are on the honour system with these for now. So if you use WCAG-Zoo in your tests
+and like Github-like badges, pick one of these:
 
-``https://img.shields.io/badge/WCAG_Zoo-AA-green.svg``
-``https://img.shields.io/badge/WCAG_Zoo-AAA-green.svg``
+* |wcag-zoo-aa-badge| ``https://img.shields.io/badge/WCAG_Zoo-AA-green.svg``
+* |wcag-zoo-aaa-badge| ``https://img.shields.io/badge/WCAG_Zoo-AAA-green.svg``
 
+.. |wcag-zoo-aa-badge| image:: https://img.shields.io/badge/WCAG_Zoo-AA-green.svg
+   :target: https://github.com/legostormtroopr/wcag-zoo
+   :alt: Example badge for WCAG-Zoo Double-A compliance
+   
+.. |wcag-zoo-aaa-badge| image:: https://img.shields.io/badge/WCAG_Zoo-AAA-green.svg
+   :target: https://github.com/legostormtroopr/wcag-zoo
+   :alt: Example badge for WCAG-Zoo Triple-A compliance
+
+ReSTructured Text::
+
+    .. image:: https://img.shields.io/badge/WCAG_Zoo-AA-green.svg
+       :target: https://github.com/LegoStormtroopr/wcag-zoo/wiki/Compliance-Statement
+       :alt: This repository is WCAG-Zoo compliant
+
+Markdown::
+
+    ![This repository is WCAG-Zoo compliant][wcag-zoo-logo]
+    
+    [wcag-zoo-logo]: https://img.shields.io/badge/WCAG_Zoo-AA-green.svg "WCAG-Zoo Compliant"
 
 Installing
 ----------
@@ -91,34 +127,26 @@ basic compliance with the Web Accessibility Guidelines.
 
 Current critters include:
 
-* Molerat - color contrast checking:
-
-       molerat your_file.html --level=AA
-   
-   Accepts the 
-
-* Tarsier - tree traveral to check headings are correct::
-
-   tarsier your_file.html --level=AA
-
 * Anteater - checks ``img`` tags for alt tags::
 
-   anteater your_file.html --level=AA
+    zookeeper anteater your_file.html --level=AA
 
+* Ayeaye - checks for the presence and uniqueness of accesskeys::
 
-Shared command line arguments:
+    zookeeper ayeaye your_file.html --level=AA
 
-* ``--level`` [AA or AAA]: Specifies the WCAG2.0 level to use for conformance
-   - ``--AA`` short hand for ``--level=AA``
-   - ``--AAA`` short hand for ``--level=AAA``
+* Molerat - color contrast checking::
 
-* ``-C, --skip_these_classes`` - Comma-separated list of CSS classes for HTML elements to *not* validate (eg. sr-only)
-  Useful if you are using CSS frameworks and want to skip validation for elements with screen reader only classes.
+    zookeeper molerat your_file.html --level=AA
+   
+* Tarsier - tree traveral to check headings are correct::
 
-* ``-I, --skip_these_ids`` - Comma-separated list of ids for HTML elements to *not* validate
+    zookeeper tarsier your_file.html --level=AA
 
-* ``-v, --verbosity`` : Specifies how much text to print to STDOUT. Possible options:
-   - ``0`` - Very little, no errors
-   - ``1`` - Print some detail on errors
-   - ``2`` - Prints comprehensive information on errors
-   - ``3`` - Prints comprehensive information on errors and warnings
+For more help on zookeeper from the command line run::
+
+    zookeeper --help
+
+Or for help on a specific command::
+
+    zookeeper ayeaye --help

@@ -3,7 +3,8 @@ from wcag_zoo.utils import WCAGCommand
 
 class Tarsier(WCAGCommand):
     """
-    Tarsier reads heading levels in HTML documents (H1,H2,...H6) to verfiy order and completion against the requirements of the WCAG2.0 standard
+    Tarsier reads heading levels in HTML documents (H1,H2,...) to verify the order and completion
+    of headings against the requirements of the WCAG2.0 standard.
     """
 
     animal = """

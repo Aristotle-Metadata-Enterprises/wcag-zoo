@@ -288,7 +288,7 @@ class WCAGCommand(object):
         Exposes the WCAG validator as a click-based command line interface tool.
         """
         @click.command(help=cls.__doc__)
-        @click.argument('filenames', required=True, nargs=-1)
+        @click.argument('filenames', required=False, nargs=-1, type=click.File('rb'))
         @click.option('--level', type=click.Choice(['AA', 'AAA', 'A']), default=None, help='WCAG level to test against. Defaults to AA.')
         @click.option('--A', 'short_level', flag_value='A', help='Shortcut for --level=A')
         @click.option('--AA', 'short_level', flag_value='AA', help='Shortcut for --level=AA')
@@ -300,23 +300,45 @@ class WCAGCommand(object):
         @click.option('--animal', expose_value=False, default=False, is_flag=True, help='')
         @click.option('--warnings_as_errors', '-W', default=False, is_flag=True, help='Treat warnings as errors')
         @click.option('--verbosity', '-v', type=int, default=1, help='Specify how much text to output during processing')
+        @click.option('--json', '-J', default=False, is_flag=True, help='Prints a json dump of results, instead of human readable results')
         def cli(*args, **kwargs):
             total_results = []
             filenames = kwargs.pop('filenames')
             short_level = kwargs.pop('short_level', 'AA')
             kwargs['level'] = kwargs['level'] or short_level or 'AA'
             verbosity = kwargs.get('verbosity')
+            json_dump = kwargs.get('json')
             warnings_as_errors = kwargs.pop('warnings_as_errors', False)
             kwargs['skip_these_classes'] = [c.strip() for c in kwargs.get('skip_these_classes').split(', ') if c]
             kwargs['skip_these_ids'] = [c.strip() for c in kwargs.get('skip_these_ids').split(', ') if c]
             if kwargs.pop('animal', None):
                 print(__function__.animal)
                 sys.exit(0)
-
             klass = cls(*args, **kwargs)
-            for filename in filenames:
-                try:
-                    with open(filename) as f:
+            if len(filenames) == 0:
+                f = click.get_text_stream('stdin')
+                filenames = [f]
+
+            if json_dump:
+                import json
+                output = []
+                for file in filenames:
+                    try:
+                        html = file.read()
+                        if hasattr(html, 'decode'):  # Forgive me: Python 2 compatability
+                            html = html.decode('utf-8')
+                        results = klass.validate_document(html)
+                    except:
+                        raise
+                        results = ["Exception thrown"]
+                    output.append((file.name, results))
+                    total_results.append(results)
+
+                print(json.dumps(output))
+            else:
+                for f in filenames:
+                    try:
+                        filename = f.name
                         print_if(
                             "Starting - {filename}".format(filename=filename),
                             check=verbosity>0
@@ -368,17 +390,17 @@ class WCAGCommand(object):
                             check=verbosity>1
                         )
                         total_results.append(results)
-                except IOError:
-                    print("Tested at WCAG2.0 %s Level" % kwargs['level'])
-
-            print("Tested at WCAG2.0 %s Level" % kwargs['level'])
-            print(
-                "{n_errors} errors, {n_warnings} warnings in {n_files} files".format(
-                    n_errors=sum([len(r['failures']) for r in total_results]),
-                    n_warnings=sum([len(r['warnings']) for r in total_results]),
-                    n_files=len(filenames)
+                    except IOError:
+                        print("Tested at WCAG2.0 %s Level" % kwargs['level'])
+    
+                print("Tested at WCAG2.0 %s Level" % kwargs['level'])
+                print(
+                    "{n_errors} errors, {n_warnings} warnings in {n_files} files".format(
+                        n_errors=sum([len(r['failures']) for r in total_results]),
+                        n_warnings=sum([len(r['warnings']) for r in total_results]),
+                        n_files=len(filenames)
+                    )
                 )
-            )
             if sum([len(r['failures']) for r in total_results]):
                 sys.exit(1)
             elif warnings_as_errors and sum([len(r['warnings']) for r in total_results]):

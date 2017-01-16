@@ -170,8 +170,14 @@ class Molerat(WCAGCommand):
     """
 
     animal = """
+        The naked mole rat, (or sand puppy) is a burrowing rodent.
+        The species is native to parts of East Africa. It is one of only two known eusocial mammals.
 
-        - https://simple.wikipedia.org/wiki/Molerat
+        The animal has unusual features, adapted to its harsh underground environment.
+        The animals do not feel pain in their skin. They also have a very low metabolism.
+
+
+        - https://simple.wikipedia.org/wiki/Naked_mole_rat
     """
 
     xpath = '/html/body//*[text()!=""]'

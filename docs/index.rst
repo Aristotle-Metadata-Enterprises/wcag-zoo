@@ -13,6 +13,11 @@ WCAG Zoo - Scripts for accessbility checking in integrated tests!
    api.rst
    commands.rst
    faq.rst
+
+   development/test-guide.rst
+   development/using_wcag_zoo_not_in_python.rst
+   development/using_wcag_zoo_in_python.rst
+
    wcag.rst
 
 .. include:: ../README.rst
