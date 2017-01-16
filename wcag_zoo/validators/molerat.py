@@ -26,6 +26,7 @@ WCAG_LUMINOCITY_RATIO_THRESHOLD = {
 
 def normalise_color(color):
     rgba_color = None
+    color = color.split("!",1)[0].strip()
 
     if "transparent" in color or "inherit" in color:
         rgba_color = [0, 0, 0, 0.0]

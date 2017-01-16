@@ -1,0 +1,26 @@
+<html data-wcag-test-command="molerat level='AA' ignore_hidden=True staticpath='./static'">
+    <head>
+        <style>
+            .snarky {
+                color: white;
+                background-color: black;
+            }
+            @media (max-width:600px) {
+              .snarky {
+                color: black;
+              }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="snarky">
+            <!-- Since we are testing without a media rule, this is ok -->
+            I hate mobile phones, but if you are
+            reading this page on a mobile you'll never know!!
+        </div>
+        <p>
+            Welcome to my page!
+        </p>
+        </div>
+    </body>
+</html>

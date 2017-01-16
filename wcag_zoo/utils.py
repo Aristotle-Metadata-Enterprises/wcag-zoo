@@ -10,8 +10,17 @@ from premailer import Premailer
 import cssutils
 cssutils.log.setLevel(logging.CRITICAL)
 
+# From Premailer
+import re
+_element_selector_regex = re.compile(r'(^|\s)\w')
 
 class Premoler(Premailer):
+    
+    def __init__(self, *args, **kwargs):
+        self.media_rules = kwargs.pop('media_rules', [])
+        super(Premoler, self).__init__(*args, **kwargs)
+    
+
     # We have to override this because an absolute path is from root, not the curent dir.
     def _load_external(self, url):
         """loads an external stylesheet from a remote url or local path
@@ -47,6 +56,114 @@ class Premoler(Premailer):
                 raise ExternalNotFoundError(stylefile)
 
         return css_body
+
+    def _parse_style_rules(self, css_body, ruleset_index):
+        """Returns a list of rules to apply to this doc and a list of rules
+        that won't be used because e.g. they are pseudoclasses. Rules
+        look like: (specificity, selector, bulk)
+        for example: ((0, 1, 0, 0, 0), u'.makeblue', u'color:blue').
+        The bulk of the rule should not end in a semicolon.
+        """
+
+        def format_css_property(prop):
+            if self.strip_important or prop.priority != 'important':
+                return '{0}:{1}'.format(prop.name, prop.value)
+            else:
+                return '{0}:{1} !important'.format(prop.name, prop.value)
+
+        def join_css_properties(properties):
+            """ Accepts a list of cssutils Property objects and returns
+            a semicolon delimitted string like 'color: red; font-size: 12px'
+            """
+            return ';'.join(
+                format_css_property(prop)
+                for prop in properties
+            )
+
+        leftover = []
+        rules = []
+        # empty string
+        if not css_body:
+            return rules, leftover
+        sheet = self._parse_css_string(
+            css_body,
+            validate=not self.disable_validation
+        )
+        _rules = []
+        for rule in sheet:
+            if rule.type == rule.MEDIA_RULE:
+                if any([media in rule.media.mediaText for media in self.media_rules]):
+                    for r in rule:
+                        _rules.append(r)
+            elif rule.type == rule.STYLE_RULE:
+                _rules.append(rule)
+
+        for rule in _rules:
+            # handle media rule
+            if rule.type == rule.MEDIA_RULE:
+                leftover.append(rule)
+                continue
+            # only proceed for things we recognize
+            if rule.type != rule.STYLE_RULE:
+                continue
+
+            # normal means it doesn't have "!important"
+            normal_properties = [
+                prop for prop in rule.style.getProperties()
+                if prop.priority != 'important'
+            ]
+            important_properties = [
+                prop for prop in rule.style.getProperties()
+                if prop.priority == 'important'
+            ]
+
+            # Create three strings that we can use to add to the `rules`
+            # list later as ready blocks of css.
+            bulk_normal = join_css_properties(normal_properties)
+            bulk_important = join_css_properties(important_properties)
+            bulk_all = join_css_properties(
+                normal_properties + important_properties
+            )
+
+            selectors = (
+                x.strip()
+                for x in rule.selectorText.split(',')
+                if x.strip() and not x.strip().startswith('@')
+            )
+            for selector in selectors:
+                if (':' in selector and self.exclude_pseudoclasses and
+                    ':' + selector.split(':', 1)[1]
+                        not in FILTER_PSEUDOSELECTORS):
+                    # a pseudoclass
+                    leftover.append((selector, bulk_all))
+                    continue
+                elif '*' in selector and not self.include_star_selectors:
+                    continue
+                # Crudely calculate specificity
+                id_count = selector.count('#')
+                class_count = selector.count('.')
+                element_count = len(_element_selector_regex.findall(selector))
+
+                # Within one rule individual properties have different
+                # priority depending on !important.
+                # So we split each rule into two: one that includes all
+                # the !important declarations and another that doesn't.
+                for is_important, bulk in (
+                    (1, bulk_important), (0, bulk_normal)
+                ):
+                    if not bulk:
+                        # don't bother adding empty css rules
+                        continue
+                    specificity = (
+                        is_important,
+                        id_count,
+                        class_count,
+                        element_count,
+                        ruleset_index,
+                        len(rules)  # this is the rule's index number
+                    )
+                    rules.append((specificity, selector, bulk))
+        return rules, leftover
 
 
 def print_if(*args, **kwargs):
@@ -242,7 +359,8 @@ class WCAGCommand(object):
                 base_path=self.kwargs.get('staticpath', '.'),
                 include_star_selectors=True,
                 strip_important=False,
-                disable_validation=True
+                disable_validation=True,
+                media_rules=self.kwargs.get('media_rules', [])
             ).transform()
             parser = etree.HTMLParser()
             self._tree = etree.parse(StringIO(html), parser)
@@ -301,6 +419,7 @@ class WCAGCommand(object):
         @click.option('--warnings_as_errors', '-W', default=False, is_flag=True, help='Treat warnings as errors')
         @click.option('--verbosity', '-v', type=int, default=1, help='Specify how much text to output during processing')
         @click.option('--json', '-J', default=False, is_flag=True, help='Prints a json dump of results, instead of human readable results')
+        @click.option('--media_rules', "-M", multiple=True, type=str, help='Specify a media rule to enforce')
         def cli(*args, **kwargs):
             total_results = []
             filenames = kwargs.pop('filenames')
@@ -329,7 +448,6 @@ class WCAGCommand(object):
                             html = html.decode('utf-8')
                         results = klass.validate_document(html)
                     except:
-                        raise
                         results = ["Exception thrown"]
                     output.append((file.name, results))
                     total_results.append(results)
