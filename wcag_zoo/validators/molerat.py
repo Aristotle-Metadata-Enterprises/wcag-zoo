@@ -26,7 +26,7 @@ WCAG_LUMINOCITY_RATIO_THRESHOLD = {
 
 def normalise_color(color):
     rgba_color = None
-    color = color.split("!",1)[0].strip()
+    color = color.split("!", 1)[0].strip()  # remove any '!important' declarations
 
     if "transparent" in color or "inherit" in color:
         rgba_color = [0, 0, 0, 0.0]
@@ -220,7 +220,7 @@ class Molerat(WCAGCommand):
 
         font_size_type = 'normal'
         error_code = 1
-        if font_size > 18 or font_size > 14 and font_is_bold:
+        if font_size >= 18 or font_size > 14 and font_is_bold:
             font_size_type = 'large'
             error_code = 2
 
@@ -233,12 +233,15 @@ class Molerat(WCAGCommand):
                 u"\n    Computed rgb values are == Foreground {fg} / Background {bg}"
                 u"\n    Text was:         {text}"
                 u"\n    Colored text was: {color_text}"
+                u"\n    Computed font-size was: {font_size} {font_size_type}"
             ).format(
                 xpath=node.getroottree().getpath(node),
                 text=disp_text,
                 fg=foreground,
                 bg=background,
                 r=ratio,
+                font_size=font_size,
+                font_size_type=font_size_type,
                 color_text=colorize(
                     disp_text,
                     rgb=int('0x%s' % webcolors.rgb_to_hex(foreground)[1:], 16),

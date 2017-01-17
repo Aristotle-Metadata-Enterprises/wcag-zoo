@@ -1,11 +1,15 @@
-<html data-wcag-test-command="molerat level='AA' ignore_hidden=True staticpath='./static' media_rules='max-width:600px'">
+<html
+    data-wcag-test-command="molerat"
+    data-wcag-arg-level="'AA'"
+    data-wcag-arg-skip_these_classes="'sneaky'"
+    data-wcag-arg-media_rules="['max-width: 600px']">
     <head>
         <style>
             .snarky {
                 color: white;
                 background-color: black;
             }
-            @media (max-width:600px) {
+            @media (max-width: 600px) {
               .snarky {
                 color: black;
               }
@@ -13,9 +17,13 @@
         </style>
     </head>
     <body>
-        <div class="snarky" data-wcag-fail-code="molerat-1">
+        <div class="snarky" data-wcag-failure-code="molerat-1">
             I hate mobile phones, but if you are
             reading this page on a mobile you'll never know!!
+        </div>
+        <div class="snarky sneaky">
+            And I'll make sure you never see this either!
+            And the zookeeper will never tell!
         </div>
         <p>
             Welcome to my page!
@@ -23,3 +31,5 @@
         </div>
     </body>
 </html>
+
+

@@ -7,19 +7,18 @@ from io import StringIO
 from functools import wraps
 import logging
 from premailer import Premailer
-import cssutils
-cssutils.log.setLevel(logging.CRITICAL)
 
 # From Premailer
+import cssutils
 import re
+cssutils.log.setLevel(logging.CRITICAL)
 _element_selector_regex = re.compile(r'(^|\s)\w')
 
+
 class Premoler(Premailer):
-    
     def __init__(self, *args, **kwargs):
         self.media_rules = kwargs.pop('media_rules', [])
         super(Premoler, self).__init__(*args, **kwargs)
-    
 
     # We have to override this because an absolute path is from root, not the curent dir.
     def _load_external(self, url):
@@ -408,12 +407,10 @@ class WCAGCommand(object):
         @click.command(help=cls.__doc__)
         @click.argument('filenames', required=False, nargs=-1, type=click.File('rb'))
         @click.option('--level', type=click.Choice(['AA', 'AAA', 'A']), default=None, help='WCAG level to test against. Defaults to AA.')
-        @click.option('--A', 'short_level', flag_value='A', help='Shortcut for --level=A')
-        @click.option('--AA', 'short_level', flag_value='AA', help='Shortcut for --level=AA')
-        @click.option('--AAA', 'short_level', flag_value='AAA', help='Shortcut for --level=AAA')
+        @click.option('-A', 'short_level', count=True, help='Shortcut for settings WCAG level, repeatable (also -AA, -AAA ')
         @click.option('--staticpath', default='.', help='Directory path to static files.')
-        @click.option('--skip_these_classes', '-C', default="", help='Comma-separated list of CSS classes for HTML elements to *not* validate')
-        @click.option('--skip_these_ids', '-I', default="", help='Comma-separated list of ids for HTML elements to *not* validate')
+        @click.option('--skip_these_classes', '-C', default=[], multiple=True, type=str, help='Repeatable argument of CSS classes for HTML elements to *not* validate')
+        @click.option('--skip_these_ids', '-I', default=[], multiple=True, type=str, help='Repeatable argument of ids for HTML elements to *not* validate')
         @click.option('--ignore_hidden', '-H', default=False, is_flag=True, help='Validate elements that are hidden by CSS rules')
         @click.option('--animal', expose_value=False, default=False, is_flag=True, help='')
         @click.option('--warnings_as_errors', '-W', default=False, is_flag=True, help='Treat warnings as errors')
@@ -424,12 +421,12 @@ class WCAGCommand(object):
             total_results = []
             filenames = kwargs.pop('filenames')
             short_level = kwargs.pop('short_level', 'AA')
-            kwargs['level'] = kwargs['level'] or short_level or 'AA'
+            kwargs['level'] = kwargs['level'] or 'A' * min(short_level, 3) or 'AA'
             verbosity = kwargs.get('verbosity')
             json_dump = kwargs.get('json')
             warnings_as_errors = kwargs.pop('warnings_as_errors', False)
-            kwargs['skip_these_classes'] = [c.strip() for c in kwargs.get('skip_these_classes').split(', ') if c]
-            kwargs['skip_these_ids'] = [c.strip() for c in kwargs.get('skip_these_ids').split(', ') if c]
+            kwargs['skip_these_classes'] = [c.strip() for c in kwargs.get('skip_these_classes') if c]
+            kwargs['skip_these_ids'] = [c.strip() for c in kwargs.get('skip_these_ids') if c]
             if kwargs.pop('animal', None):
                 print(__function__.animal)
                 sys.exit(0)
@@ -448,7 +445,7 @@ class WCAGCommand(object):
                             html = html.decode('utf-8')
                         results = klass.validate_document(html)
                     except:
-                        results = ["Exception thrown"]
+                        results = {'failures': ["Exception thrown"]}
                     output.append((file.name, results))
                     total_results.append(results)
 

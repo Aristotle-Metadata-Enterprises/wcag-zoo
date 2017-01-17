@@ -150,3 +150,21 @@ For more help on zookeeper from the command line run::
 Or for help on a specific command::
 
     zookeeper ayeaye --help
+
+Limitations
+-----------
+
+At this point, WCAG-Zoo commands **do not** handle nested media queries, but they do support
+single level media queries. So this will be interpreted::
+
+    @media (min-width: 600px) and (max-width: 800px) {
+        .this_rule_works {color:red}
+    }
+
+But this won't (plus this isn't supported across some browsers)::
+
+    @media (min-width: 600px) {
+        @media (max-width: 800px) {
+            .this_rule_wont_work {color:red}
+        }
+    }
