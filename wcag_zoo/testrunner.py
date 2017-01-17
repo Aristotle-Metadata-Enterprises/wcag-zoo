@@ -95,14 +95,14 @@ def test_files(filenames):
         print("Testing %s ... " % f, end="")
         try:
             test_file(f)
-            print('\x1b[1;32;40m' + 'ok' + '\x1b[0m')
+            print('\x1b[1;32m' + 'ok' + '\x1b[0m')
         except ValidationError as v:
             failed += 1
-            print('\x1b[1;31;40m' + 'failed' + '\x1b[0m')
+            print('\x1b[1;31m' + 'failed' + '\x1b[0m')
             print(" ", v.message)
         except:
             failed += 1
-            print('\x1b[1;31;40m' + 'error!' + '\x1b[0m')
+            print('\x1b[1;31m' + 'error!' + '\x1b[0m')
             if len(filenames) == 1:
                 raise
     return failed == 0
@@ -152,6 +152,8 @@ def test_command_lines(filenames):
         )
 
         results = process.communicate()[0]
+        if hasattr(results, 'decode'):  # Forgive me: Python 2 compatability
+            results = results.decode('utf-8')
 
         try:
             assert(
@@ -160,14 +162,14 @@ def test_command_lines(filenames):
                     num_warns=len(tree.xpath("//*[@data-wcag-warning-code]")),
                 ) in results
             )
-            print('\x1b[1;32;40m' + 'ok' + '\x1b[0m')
+            print('\x1b[1;32m' + 'ok' + '\x1b[0m')
         except ValidationError as v:
             failed += 1
-            print('\x1b[1;31;40m' + 'failed' + '\x1b[0m')
+            print('\x1b[1;31m' + 'failed' + '\x1b[0m')
             print(" ", v.message)
         except:
             failed += 1
-            print('\x1b[1;31;40m' + 'error!' + '\x1b[0m')
+            print('\x1b[1;31m' + 'error!' + '\x1b[0m')
             if len(filenames) == 1:
                 raise
     return failed == 0
