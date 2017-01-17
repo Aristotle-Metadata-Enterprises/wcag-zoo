@@ -455,7 +455,7 @@ class WCAGCommand(object):
                     try:
                         filename = f.name
                         print_if(
-                            "Starting - {filename}".format(filename=filename),
+                            "Starting - {filename} ... ".format(filename=filename), end="",
                             check=verbosity>0
                         )
                         html = f.read()
@@ -463,6 +463,14 @@ class WCAGCommand(object):
                             html = html.decode('utf-8')
 
                         results = klass.validate_document(html)
+
+                        if verbosity == 1:
+                            if len(results['failures']) > 0:
+                                print('\x1b[1;31m' + 'failed' + '\x1b[0m')
+                            else:
+                                print('\x1b[1;32m' + 'ok' + '\x1b[0m')
+                        else:
+                            print()
 
                         print_if(
                             "\n".join([

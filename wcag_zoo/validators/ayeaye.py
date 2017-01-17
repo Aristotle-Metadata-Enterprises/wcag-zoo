@@ -22,9 +22,9 @@ class Ayeaye(WCAGCommand):
     """
     xpath = '/html/body//*[@accesskey]'
     error_codes = {
-        1: "Duplicate `accesskey` attribute '{key}' found. First seen at element {elem}",
-        2: "Blank `accesskey` attribute found at element {elem}",
-        3: "No `accesskey` attributes found, consider adding some to improve keyboard accessibility",
+        'ayeaye-1': "Duplicate `accesskey` attribute '{key}' found. First seen at element {elem}",
+        'ayeaye-2': "Blank `accesskey` attribute found at element {elem}",
+        'ayeaye-3-warning': "No `accesskey` attributes found, consider adding some to improve keyboard accessibility",
     }
 
     def validate_document(self, html):
@@ -38,8 +38,8 @@ class Ayeaye(WCAGCommand):
                 guideline='2.1.1',
                 technique='G20',
                 node=self.tree.xpath('/html/body')[0],
-                message=Ayeaye.error_codes[3],
-                error_code=3,
+                message=Ayeaye.error_codes['ayeaye-3-warning'],
+                error_code='ayeaye-3-warning',
             )
 
         return {
@@ -57,8 +57,8 @@ class Ayeaye(WCAGCommand):
                 guideline='2.1.1',
                 technique='G20',
                 node=node,
-                error_code=2,
-                message=Ayeaye.error_codes[2].format(elem=node.getroottree().getpath(node)),
+                error_code='ayeaye-2',
+                message=Ayeaye.error_codes['ayeaye-2'].format(elem=node.getroottree().getpath(node)),
             )
         elif access_key not in self.found_keys.keys():
             self.success += 1
@@ -68,8 +68,8 @@ class Ayeaye(WCAGCommand):
                 guideline='2.1.1',
                 technique='G20',
                 node=node,
-                error_code=1,
-                message=Ayeaye.error_codes[1].format(key=access_key, elem=self.found_keys[access_key]),
+                error_code='ayeaye-1',
+                message=Ayeaye.error_codes['ayeaye-1'].format(key=access_key, elem=self.found_keys[access_key]),
             )
 
 if __name__ == "__main__":

@@ -12,8 +12,8 @@ class Anteater(WCAGCommand):
     xpath = '/html/body//img'
 
     error_codes = {
-        1: "Missing alt tag on image for element",
-        2: "Blank alt tag on image for element",
+        'anteater-1': "Missing alt tag on image for element",
+        'anteater-2': "Blank alt tag on image for element",
     }
 
     def validate_element(self, node):
@@ -31,7 +31,7 @@ class Anteater(WCAGCommand):
                 'technique': 'H37',
                 'node': node,
                 'message': message,
-                'error_code': 1
+                'error_code': 'anteater-1'
             })
         elif node.get('alt') == "":
             message = (
@@ -48,7 +48,7 @@ class Anteater(WCAGCommand):
                 'technique': 'H37',
                 'node': node,
                 'message': message,
-                'error_code': 2
+                'error_code': 'anteater-2'
             })
         else:
             self.success += 1

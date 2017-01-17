@@ -183,8 +183,8 @@ class Molerat(WCAGCommand):
     xpath = '/html/body//*[text()!=""]'
 
     error_codes = {
-        1: u"Insufficient contrast ({r:.2f}) for text at element - {xpath}",
-        2: u"Insufficient contrast ({r:.2f}) for large text element at element- {xpath}"
+        'molerat-1': u"Insufficient contrast ({r:.2f}) for text at element - {xpath}",
+        'molerat-2': u"Insufficient contrast ({r:.2f}) for large text element at element- {xpath}"
     }
 
     def skip_element(self, node):
@@ -219,10 +219,10 @@ class Molerat(WCAGCommand):
         ratio = calculate_luminocity_ratio(foreground, background)
 
         font_size_type = 'normal'
-        error_code = 1
+        error_code = 'molerat-1'
         if font_size >= 18 or font_size > 14 and font_is_bold:
             font_size_type = 'large'
-            error_code = 2
+            error_code = 'molerat-2'
 
         ratio_threshold = WCAG_LUMINOCITY_RATIO_THRESHOLD.get(self.level).get(font_size_type)
 

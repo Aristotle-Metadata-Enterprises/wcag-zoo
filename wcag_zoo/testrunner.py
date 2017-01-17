@@ -45,7 +45,7 @@ def test_file(filename):
             # Test the nodes that we're told fail, are expected to fail
             for result in results[level_plural]:
                 err_code = tree.xpath(result['xpath'])[0].get(error_attr, "not given")
-                if '%s-%s' % (command, result['error_code']) != err_code:
+                if result['error_code'] != err_code:
                     test_failures.append(
                         (
                             "Validation failured for node [{xpath}], expected {level} but no error code was found\n"
@@ -53,7 +53,7 @@ def test_file(filename):
                         ).format(
                             xpath=result['xpath'],
                             level=level,
-                            error_code='%s-%s' % (command, result['error_code']),
+                            error_code=result['error_code'],
                             message=result['message'],
                             err_code=err_code
                         )
@@ -74,7 +74,7 @@ def test_file(filename):
                             level=level,
                         )
                     )
-                elif '%s-%s' % (command, failed_paths[this_path].get('error_code')) != error_code:
+                elif failed_paths[this_path].get('error_code') != error_code:
                     test_failures.append(
                         (
                             "Test HTML states expected {level} for node [{xpath}], but the node did not fail as expected\n"
