@@ -6,7 +6,7 @@ WCAG Zoo - Scripts for automated accessiblity validation
 What is it?
 -----------
 
-WCAG-Zoo is a set of POSIX-like command line tools that help provide basic validation of HTML
+WCAG-Zoo is a set of command line tools that help provide basic validation of HTML
 against the accessibility guidelines laid out by the W3C Web Content Accessibility Guidelines 2.0.
 
 Each tool checks against a limited set of these and is designed to return simple text output and returns an 
@@ -24,17 +24,24 @@ By building accessibility checking into your build scripts you can be relatively
 readily use your website. And if you come across an issue, you identify it early - before you hit production
 and they start causing problems for people.
 
-Plus, integrating accessibility into your build scripts shows that you really care about the usability of your site. These tools won't pick up every issue around accessibility, but they'll pick up enough (and do so automatically) and its about demonstrating a commitment to accessibility wherever you can.
+Plus, integrating accessibility into your build scripts shows that you really care about the usability of your site.
+These tools won't pick up every issue around accessibility, but they'll pick up enough (and do so automatically)
+and helps demonstrate a commitment to accessibility where possible.
 
 That sounds like a lot of work, is it really that useful?
 ---------------------------------------------------------
 
-Granted, accessibility is tough - and you might question how useful it is. If you have an app targeted to a very niche demographic and are working on tight timeframes, maybe accessibility isn't important right now.
+Granted, accessibility is tough - and you might question how useful it is.
+If you have an app targeted to a very niche demographic and are working on tight timeframes,
+maybe accessibility isn't important right now.
 
-But some industries, like Government, Healthcare, Legal and Retail all care about WCAG compliance -
-**a lot**! To the point that in some places its legislated. In some cases not complying with certain accessibility guidelines `can even get sued <https://www.w3.org/WAI/bcase/target-case-study>`_!
+But some industries, such as Government, Healthcare, Legal and Retail all care **a lot** about WCAG compliance.
+To the point that in some areas it is legislated or mandated.
+In some cases not complying with certain accessibility guidelines `can even get sued <https://www.w3.org/WAI/bcase/target-case-study>`_
+can lead to large, expensive lawsuits!
 
-If you care about working in any of the above sectors, being able to *prove* you are compliant (instead of just claiming it) can be a big plus.
+If you care about working in any of the above sectors, being able to *prove* you are compliant can be a big plus,
+and having that proof built in to your testing suite means identiying issues earlier before they are a problem.
 
 But all my pages are dynamically created and I use a CSS pre-processor
 ----------------------------------------------------------------------
@@ -59,7 +66,7 @@ Lastly, if you are building a dynamic site in a language other than Python you c
 line scripts with the ``--json`` or ``-J`` flag and this will produce a JSON output that can be parsed and
 used in your preferred target language.
 
-For details on this see the section in the documentation titled "Using WCAG-Zoo in languages other than Python".
+For details on this see the section in the documentation titled "`Using WCAG-Zoo in languages other than Python <development/using_wcag_zoo_not_in_python.html>`_".
 
 Do I have to check *every* page?
 --------------------------------
@@ -122,8 +129,7 @@ Installing
 How to Use
 ----------
 
-A bunch of crazy critters that perform automated tests on your HTML to verify
-basic compliance with the Web Accessibility Guidelines.
+All WCAG-Zoo commands are exposed through ``zookeeper`` from the command line.
 
 Current critters include:
 
@@ -138,6 +144,10 @@ Current critters include:
 * Molerat - color contrast checking::
 
     zookeeper molerat your_file.html --level=AA
+
+* Parade - runs all validators against the given files with allowable exclusions::
+
+    zookeeper parade your_file.html --level=AA
    
 * Tarsier - tree traveral to check headings are correct::
 

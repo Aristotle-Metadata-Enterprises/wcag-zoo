@@ -2,6 +2,7 @@ import os
 import click
 from wcag_zoo.utils import WCAGCommand, get_wcag_class
 
+
 class Parade(WCAGCommand):
     """
     Run a number of validators together across a file or collection of files in a single command.
@@ -10,7 +11,6 @@ class Parade(WCAGCommand):
     def __init__(self, *args, **kwargs):
         self.exclude_validators = list(kwargs.pop('exclude_validators', []))
         super(Parade, self).__init__(*args, **kwargs)
-
 
     def validate_document(self, html):
         rv = sorted([
@@ -35,8 +35,7 @@ class Parade(WCAGCommand):
             cmd = get_wcag_class(validator_name)
             results = cmd(**self.kwargs).validate_document(html)
             for k, v in results.items():
-                total_results[k] = total_results[k]+v
-
+                total_results[k] = total_results[k] + v
         return total_results
 
     @classmethod

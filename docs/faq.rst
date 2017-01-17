@@ -1,6 +1,43 @@
 Frequently Asked Questions
 ==========================
 
+Can I use this to check my sites accessibility at different breakpoints?
+------------------------------------------------------------------------
+
+Yes! Making sure your site is accessible at different screen sizes is important so
+this is vitally important. By default, WCAG-Zoo validators ignore ``@media`` rules, but
+if you are using CSS ``@media`` rules to provide different CSS rules to different users,
+you can declare which media rules to check against when running commands.
+
+These can be added using the ``--media_rules`` command line flag (``-M``) or using the
+``media_rules`` argument in Python. Any CSS ``@media`` rule that matches against *any* of
+the listed ``media_rules`` to check will be used, *even if they conflict*.
+
+For example, below are some of the media rules used in the 
+`Twitter Bootstrap CSS framework <http://getbootstrap.com/>`_ ::
+
+    1. @media (max-device-width: 480px) and (orientation: landscape) {
+    2. @media (max-width: 767px) {
+    3. @media screen and (max-width: 767px) {
+    4. @media (min-width: 768px) {
+    5. @media (min-width: 768px) and (max-width: 991px) {
+    6. @media screen and (min-width: 768px) {
+    7. @media (min-width: 992px) {
+    8. @media (min-width: 992px) and (max-width: 1199px) {
+    9. @media (min-width: 1200px) {
+
+The following command will check rules 4, 5 and 6 as all contain the string ``(min-width: 768px)``::
+
+   zookeeper molerat --media_rules="(min-width: 768px)"
+
+Note that this command will check media rules where the maximum width is 767px
+and the minimum width is 768px::
+
+  zookeeper molerat -M="(min-width: 768px)" -M="(max-width: 767px)"
+  
+In reality a browser would never render these as the rules conflict, but zookeeper isn't that smart yet.
+
+
 Why is it important to check the accesibility of hidden elements?
 -----------------------------------------------------------------
 
