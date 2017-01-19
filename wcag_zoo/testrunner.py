@@ -151,9 +151,7 @@ def test_command_lines(filenames):
             stdout=subprocess.PIPE
         )
 
-        results = process.communicate()[0]
-        if hasattr(results, 'decode'):  # Forgive me: Python 2 compatability
-            results = results.decode('utf-8')
+        results = process.communicate()[0].decode('utf-8')
 
         try:
             assert(

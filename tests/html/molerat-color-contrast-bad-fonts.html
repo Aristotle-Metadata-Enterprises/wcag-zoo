@@ -11,6 +11,9 @@
             .bigger-text {
                 font-size:150%
             }
+            .bold {
+                font-weight: bold;
+            }
         </style>
     </head>
     <body style="font-size:12pt">
@@ -19,6 +22,11 @@
             <div class="bigger-text">
                 This is bigger and has better contrast!
             </div>
+        </div>
+        <div style="font-size:12pt" class="bold" >
+            <span class="low-contrast smaller-text" data-wcag-failure-code="molerat-1">>
+                Even when bolder its still harder to read because its too small.
+            </span>
         </div>
         <div class="low-contrast" style="font-size:17px" data-wcag-failure-code="molerat-1">
             Here is big text specified in pixels.

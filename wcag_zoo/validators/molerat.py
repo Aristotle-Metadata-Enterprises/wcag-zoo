@@ -7,6 +7,7 @@ import webcolors
 import click
 from xtermcolor import colorize
 from wcag_zoo.utils import WCAGCommand, get_applicable_styles, nice_console_text
+from decimal import Decimal as D
 
 import logging
 import cssutils
@@ -60,15 +61,15 @@ def calculate_luminocity(r=0, g=0, b=0):
 
     x = []
     for C in r, g, b:
-        c = C / 255.0
-        if c < 0.03928:
-            x.append(c / 12.92)
+        c = C / D('255.0')
+        if c < D('0.03928'):
+            x.append(c / D('12.92'))
         else:
-            x.append(((c + 0.055) / 1.055) ** 2.4)
+            x.append(((c + D('0.055')) / D('1.055')) ** D('2.4'))
 
     R, G, B = x
 
-    L = 0.2126 * R + 0.7152 * G + 0.0722 * B
+    L = D('0.2126') * R + D('0.7152') * G + D('0.0722') * B
     return L
 
 
@@ -92,9 +93,9 @@ def generate_opaque_color(color_stack):
             continue
         da = 1 - a
         alpha = alpha + a * da
-        red = (red * 0.25 + r * a * da) / alpha
-        green = (green * 0.25 + g * a * da) / alpha
-        blue = (blue * 0.25 + b * a * da) / alpha
+        red = (red * D('0.25') + r * a * da) / alpha
+        green = (green * D('0.25') + g * a * da) / alpha
+        blue = (blue * D('0.25') + b * a * da) / alpha
 
     return [int(red), int(green), int(blue)]
 
@@ -115,9 +116,9 @@ def calculate_font_size(font_stack):
         if 'pt' in size:
             font_size = int(size.split('pt')[0])
         elif 'px' in size:
-            font_size = int(size.split('px')[0]) * 0.75  # WCAG claims about 0.75 pt per px
+            font_size = int(size.split('px')[0]) * D('0.75')  # WCAG claims about 0.75 pt per px
         elif '%' in size:
-            font_size = font_size * float(size.split('%')[0]) / 100
+            font_size = font_size * D(size.split('%')[0]) / 100
         # TODO: em and en
     return font_size
 
@@ -149,7 +150,7 @@ def calculate_luminocity_ratio(foreground, background):
         calculate_luminocity(*background),
     ])
 
-    return (L1 + 0.05) / (L2 + 0.05)
+    return (L1 + D('0.05')) / (L2 + D('0.05'))
 
 
 class Molerat(WCAGCommand):

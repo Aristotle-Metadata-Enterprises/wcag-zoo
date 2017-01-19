@@ -13,6 +13,7 @@ import cssutils
 import re
 cssutils.log.setLevel(logging.CRITICAL)
 _element_selector_regex = re.compile(r'(^|\s)\w')
+FILTER_PSEUDOSELECTORS = [':last-child', ':first-child', 'nth-child']
 
 
 class Premoler(Premailer):
@@ -441,8 +442,6 @@ class WCAGCommand(object):
                 for file in filenames:
                     try:
                         html = file.read()
-                        if hasattr(html, 'decode'):  # Forgive me: Python 2 compatability
-                            html = html.decode('utf-8')
                         results = klass.validate_document(html)
                     except:
                         results = {'failures': ["Exception thrown"]}
@@ -459,9 +458,6 @@ class WCAGCommand(object):
                             check=verbosity>0
                         )
                         html = f.read()
-                        if hasattr(html, 'decode'):  # Forgive me: Python 2 compatability
-                            html = html.decode('utf-8')
-
                         results = klass.validate_document(html)
 
                         if verbosity == 1:

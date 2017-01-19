@@ -20,7 +20,7 @@ class Tarsier(WCAGCommand):
     xpath = '/html/body//*[%s]' % (" or ".join(['self::h%d' % x for x in range(7)]))
 
     error_codes = {
-        'tarsier-1': "Incorrect header found at {elem} - H{bad} should be H{good}",
+        'tarsier-1': "Incorrect header found at {elem} - H{bad} should be H{good}, text in header was {text}",
     }
 
     def run_validation_loop(self, xpath=None, validator=None):
@@ -48,8 +48,9 @@ class Tarsier(WCAGCommand):
                     node=node,
                     message=Tarsier.error_codes['tarsier-1'].format(
                         elem=node.getroottree().getpath(node),
-                        good=depth,
-                        bad=h
+                        good=depth+1,
+                        bad=h,
+                        text=node.text
                     ),
                     error_code='tarsier-1'
                 )
