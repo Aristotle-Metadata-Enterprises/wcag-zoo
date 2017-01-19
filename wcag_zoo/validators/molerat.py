@@ -130,7 +130,7 @@ def is_font_bold(font_stack):
     is_bold = False
 
     for font_declarations in font_stack:
-        weight = font_declarations.get('weight', "")
+        weight = font_declarations.get('font-weight', "")
         if 'bold' in weight or 'bold' in font_declarations.get('font', ""):
             # Its bold! THe rest of the rules don't matter
             return True
@@ -220,7 +220,7 @@ class Molerat(WCAGCommand):
 
         font_size_type = 'normal'
         error_code = 'molerat-1'
-        if font_size >= 18 or font_size > 14 and font_is_bold:
+        if font_size >= 18 or font_size >= 14 and font_is_bold:
             font_size_type = 'large'
             error_code = 'molerat-2'
 
@@ -233,7 +233,7 @@ class Molerat(WCAGCommand):
                 u"\n    Computed rgb values are == Foreground {fg} / Background {bg}"
                 u"\n    Text was:         {text}"
                 u"\n    Colored text was: {color_text}"
-                u"\n    Computed font-size was: {font_size} {font_size_type}"
+                u"\n    Computed font-size was: {font_size} {bold} ({font_size_type})"
             ).format(
                 xpath=node.getroottree().getpath(node),
                 text=disp_text,
@@ -241,6 +241,7 @@ class Molerat(WCAGCommand):
                 bg=background,
                 r=ratio,
                 font_size=font_size,
+                bold=['normal','bold'][font_is_bold],
                 font_size_type=font_size_type,
                 color_text=colorize(
                     disp_text,
