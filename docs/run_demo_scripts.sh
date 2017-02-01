@@ -7,7 +7,6 @@ python2 pip install lxml
 
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
-pip install -e .
 
 $errored_builds = 0
 for SCRIPT in ./docs/development/scripts/*

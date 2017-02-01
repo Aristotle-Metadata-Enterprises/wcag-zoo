@@ -5,8 +5,9 @@ python:
 install:
   - pip install tox
   - pip install travis-tox
+  - pip install -e .
 script:
-  - tox
+  - tox --skip-missing-interpreters
 after_success:
   - coverage report
   - coveralls
