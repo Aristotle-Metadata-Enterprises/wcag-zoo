@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+# install requirements for scripts
 npm install temp
-cpan JSON
+cpan-install JSON
+pip install lxml
 
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
