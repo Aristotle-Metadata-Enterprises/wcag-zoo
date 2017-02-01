@@ -2,7 +2,7 @@
 
 # install requirements for scripts
 npm install temp
-cpan-install JSON
+cpanm --quiet --installdeps --notest JSON
 
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
