@@ -4,7 +4,7 @@
 npm install temp
 
 # Install modules into ~/perl5 using system perl
-curl -L https://cpanmin.us | perl - App::cpanminus
+cd ~; curl -L https://cpanmin.us | perl - App::cpanminus; cd -
 ~/perl5/bin/cpanm local::lib
 ~/perl5/bin/cpanm JSON
 
@@ -29,5 +29,5 @@ do
         fi
 	fi
 done
-echo $errored_builds
+
 exit $errored_builds
