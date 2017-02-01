@@ -2,8 +2,13 @@
 
 # install requirements for scripts
 npm install temp
-cpanm --quiet --installdeps --notest JSON
 
+# Install modules into ~/perl5 using system perl
+curl -L https://cpanmin.us | perl - App::cpanminus
+~/perl5/bin/cpanm local::lib
+~/perl5/bin/cpanm JSON
+
+# Python 3 stuff
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 

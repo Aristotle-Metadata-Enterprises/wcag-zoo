@@ -6,7 +6,6 @@ install:
   - pip install tox
   - pip install travis-tox
   - pip install -e .
-  - cpanm --quiet --installdeps --notest JSON
 script:
   - tox --skip-missing-interpreters
 after_success:
