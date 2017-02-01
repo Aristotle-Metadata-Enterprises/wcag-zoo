@@ -2,7 +2,7 @@
 npm install temp
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
-#run-parts ./docs/development/scripts/ --regex=.*
+pip install -e .
 
 for SCRIPT in ./docs/development/scripts/*
 do
