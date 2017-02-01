@@ -35,7 +35,7 @@ Perl
 
 File based:
 
-.. literalinclude:: scripts/perl_wcag.pl
+.. literalinclude:: scripts/untested/perl_wcag.pl
    :language: perl
 
 
