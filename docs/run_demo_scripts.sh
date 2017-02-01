@@ -4,6 +4,8 @@
 npm install temp
 
 # Install modules into ~/perl5 using system perl
+mkdir ~/.cpanm
+mkdir /.cpanm
 cd ~; curl -L https://cpanmin.us | perl - App::cpanminus; cd -
 ~/perl5/bin/cpanm local::lib
 ~/perl5/bin/cpanm JSON
