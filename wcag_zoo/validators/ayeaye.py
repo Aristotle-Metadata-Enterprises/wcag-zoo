@@ -32,7 +32,7 @@ class Ayeaye(WCAGCommand):
 
         # find all nodes that have access keys
         self.found_keys = {}
-        iterations = self.run_validation_loop()
+        self.run_validation_loop()
         if len(self.tree.xpath('/html/body//*[@accesskey]')) == 0:
             self.add_warning(
                 guideline='2.1.1',

@@ -48,7 +48,7 @@ class Tarsier(WCAGCommand):
                     node=node,
                     message=Tarsier.error_codes['tarsier-1'].format(
                         elem=node.getroottree().getpath(node),
-                        good=depth+1,
+                        good=depth + 1,
                         bad=h,
                         text=node.text
                     ),

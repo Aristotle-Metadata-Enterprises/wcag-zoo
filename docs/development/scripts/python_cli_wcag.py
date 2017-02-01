@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+from __future__ import print_function
 import json
 import tempfile
 import subprocess
@@ -16,6 +18,7 @@ process = subprocess.Popen(
 results = process.communicate()[0]
 json_results = json.loads(results)
 
-print json_results[0][0], " ", \
-    len(json_results[0][1]['failures']), \
-    " failures"
+print(json_results[0][0],
+    len(json_results[0][1]['failures']),
+    "failures"
+)

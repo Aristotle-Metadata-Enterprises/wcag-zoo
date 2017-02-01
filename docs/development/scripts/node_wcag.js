@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var temp = require('temp'),
     fs   = require('fs'),
     exec = require('child_process').exec;

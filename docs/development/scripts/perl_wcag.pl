@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 require File::Temp;
 use File::Temp ();
 use File::Temp qw/ :seekable /;

@@ -3,17 +3,9 @@ python:
   - "3.5"
   - "3.6"
 install:
-# command to install dependencies
-  - "pip install coveralls"
-  - "pip install pep8"
-  - "pip install sphinx"
-  - "pip install -e ."
-before_script:
-  - pep8 --ignore=E501,E225,E123 wcag_zoo
-  - cd docs ; sphinx-build -nW -b html -d _build/doctrees . _build/html ; cd ..
-# command to run tests
+  - pip install travis-tox
 script:
-  - coverage run --branch --source=wcag_zoo wcag_zoo/testrunner.py tests/html/*.html
+  - tox
 after_success:
   - coverage report
   - coveralls

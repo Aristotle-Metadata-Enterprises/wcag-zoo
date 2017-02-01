@@ -28,14 +28,14 @@ setup(
         'Intended Audience :: Science/Research',
 
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 3 :: Only',
     ],
-    entry_points = {
-          'console_scripts': [
-              'zookeeper = wcag_zoo.zookeeper:zookeeper',                  
-          ],              
-      },
-    install_requires = [
+    entry_points={
+        'console_scripts': [
+            'zookeeper = wcag_zoo.zookeeper:zookeeper',
+        ],
+    },
+    install_requires=[
         "lxml",
         "premailer",
         "webcolors",

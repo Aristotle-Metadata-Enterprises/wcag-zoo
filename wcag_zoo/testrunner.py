@@ -1,4 +1,3 @@
-from __future__ import print_function
 import click
 from lxml import etree
 from ast import literal_eval
@@ -33,9 +32,8 @@ def test_file(filename):
         kwargs['staticpath'] = os.path.join(path, staticpath)
     instance = test_cls(**kwargs)
 
-    with open(filename) as file:
+    with open(filename, "rb") as file:
         html = file.read()
-
         results = instance.validate_document(html)
         test_failures = []
         for level in ['failure', 'warning']:

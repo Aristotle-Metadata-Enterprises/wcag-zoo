@@ -122,8 +122,8 @@ Markdown::
 Installing
 ----------
 
-* Stable: ``pip install wcag-zoo``
-* Development: ``pip install https://github.com/LegoStormtroopr/wcag-zoo``
+* Stable: ``pip3 install wcag-zoo``
+* Development: ``pip3 install https://github.com/LegoStormtroopr/wcag-zoo``
 
 
 How to Use

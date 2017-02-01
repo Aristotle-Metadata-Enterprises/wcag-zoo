@@ -1,0 +1,22 @@
+#
+# Some help for Python on AppVeyor:
+# * https://packaging.python.org/appveyor/
+# * https://ci.appveyor.com/tools/validate-yaml
+
+build: false
+
+environment:
+  matrix:
+      - PYTHON_HOME: "C:/Python35"
+      - PYTHON_HOME: "C:/Python35-x64"
+      - PYTHON_HOME: "C:/Python36"
+      - PYTHON_HOME: "C:/Python36-x64"
+install:
+  - cmd: |
+        set PATH=%PYTHON_HOME%;%PYTHON_HOME%\Scripts;%PATH%
+        python -m pip install --upgrade pip
+        pip install tox
+
+# command to run tests
+test_script:
+  - cmd: tox --skip-missing-interpreters

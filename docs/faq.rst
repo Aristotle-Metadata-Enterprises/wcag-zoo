@@ -80,3 +80,17 @@ Or when calling as a module::
 
     Molerat(..., skip_these_classes=['inner'])
     Molerat(..., skip_these_ids=['hero_text'])
+
+Why doesn't WCAG-Zoo support Python 2?
+--------------------------------------
+Python 2 is on a long deprecation cycle, and a number of big libraries (such as Django)
+are beginning the process to remove Python 2 support entirely. Making WCAG-Zoo 
+Python 3 only made building it much easier and removed the need for Python2/3 hacks
+to support both properly.
+
+If you are building a Python 2 tool and absolutely need support you have a number of options
+* Download the code to a place your Python 2 code can import it
+* Use the demonstration scripts as way to run the WCAG-Zoo command line tools from
+ within Python 2 code using ``subprocess`` and parse the JSON
+* Consider how import Python 2 is to you or your users and port your code to Python 3
+  (its not as painful as you think now and there are benefits)

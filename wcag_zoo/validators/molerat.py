@@ -1,10 +1,5 @@
 from __future__ import print_function, division
-from premailer import Premailer
-from lxml import etree
-import os
-import sys
 import webcolors
-import click
 from xtermcolor import colorize
 from wcag_zoo.utils import WCAGCommand, get_applicable_styles, nice_console_text
 from decimal import Decimal as D
@@ -242,7 +237,7 @@ class Molerat(WCAGCommand):
                 bg=background,
                 r=ratio,
                 font_size=font_size,
-                bold=['normal','bold'][font_is_bold],
+                bold=['normal', 'bold'][font_is_bold],
                 font_size_type=font_size_type,
                 color_text=colorize(
                     disp_text,

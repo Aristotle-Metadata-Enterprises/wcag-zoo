@@ -3,8 +3,7 @@ from lxml import etree
 import click
 import os
 import sys
-from io import StringIO
-from functools import wraps
+from io import BytesIO
 import logging
 from premailer import Premailer
 
@@ -311,12 +310,13 @@ class WCAGCommand(object):
 
     def validate_document(self, html):
         """
-        Main validation method - validates an entire document, single node from a HTML tree. Errors and warnings are attached to the classes ``failures`` and ``warnings``
-        properties.
+        Main validation method - validates an entire document, single node from a HTML tree.
 
-        **Note**: This checks the validatity of the whole document, but does not execute the validation loop.
+        **Note**: This checks the validitity of the whole document
+        and executes the validation loop.
 
-        By default, returns a dictionary with the number of successful checks, and a list of failues, warnings and skipped elements.
+        By default, returns a dictionary with the number of successful checks,
+        and a list of failures, warnings and skipped elements.
         """
         self.tree = self.get_tree(html)
         self.validate_whole_document(html)
@@ -331,7 +331,8 @@ class WCAGCommand(object):
 
     def validate_whole_document(self, html):
         """
-        Validates an entire document from a HTML element tree. Errors and warnings are attached to the instances ``failures`` and ``warnings``
+        Validates an entire document from a HTML element tree.
+        Errors and warnings are attached to the instances ``failures`` and ``warnings``
         properties.
 
         **Note**: This checks the validatity of the whole document, but does not execute the validation loop.
@@ -351,7 +352,10 @@ class WCAGCommand(object):
 
     def get_tree(self, html):
         if not hasattr(self, '_tree'):
-            html = Premoler(
+            # Pre-parse
+            parser = etree.HTMLParser()
+            html = etree.parse(BytesIO(html), parser).getroot()
+            self._tree = Premoler(
                 html,
                 exclude_pseudoclasses=True,
                 method="html",
@@ -362,8 +366,6 @@ class WCAGCommand(object):
                 disable_validation=True,
                 media_rules=self.kwargs.get('media_rules', [])
             ).transform()
-            parser = etree.HTMLParser()
-            self._tree = etree.parse(StringIO(html), parser)
         return self._tree
 
     def run_validation_loop(self, xpath=None, validator=None):
@@ -413,7 +415,7 @@ class WCAGCommand(object):
         @click.option('--skip_these_classes', '-C', default=[], multiple=True, type=str, help='Repeatable argument of CSS classes for HTML elements to *not* validate')
         @click.option('--skip_these_ids', '-I', default=[], multiple=True, type=str, help='Repeatable argument of ids for HTML elements to *not* validate')
         @click.option('--ignore_hidden', '-H', default=False, is_flag=True, help='Validate elements that are hidden by CSS rules')
-        @click.option('--animal', expose_value=False, default=False, is_flag=True, help='')
+        @click.option('--animal', default=False, is_flag=True, help='')
         @click.option('--warnings_as_errors', '-W', default=False, is_flag=True, help='Treat warnings as errors')
         @click.option('--verbosity', '-v', type=int, default=1, help='Specify how much text to output during processing')
         @click.option('--json', '-J', default=False, is_flag=True, help='Prints a json dump of results, instead of human readable results')
@@ -429,7 +431,7 @@ class WCAGCommand(object):
             kwargs['skip_these_classes'] = [c.strip() for c in kwargs.get('skip_these_classes') if c]
             kwargs['skip_these_ids'] = [c.strip() for c in kwargs.get('skip_these_ids') if c]
             if kwargs.pop('animal', None):
-                print(__function__.animal)
+                print(cls.animal)
                 sys.exit(0)
             klass = cls(*args, **kwargs)
             if len(filenames) == 0:
