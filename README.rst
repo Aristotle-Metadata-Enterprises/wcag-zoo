@@ -80,10 +80,10 @@ You convinced me, how do I use it?
 Two ways:
 
 1. `In your build and tests scripts, generate some HTML files and use the command line tools so that
-   you can verify your that the CSS and HTML you output can be read. <development/using_wcag_zoo_not_in_python.html>`_
+   you can verify your that the CSS and HTML you output can be read. <//wcag-zoo.readthedocs.io/en/latest/development/using_wcag_zoo_not_in_python.html>`_
 
 2. `If you are using Python, once installed from pip, you can import any or all of the tools and
-   inspect the messages and errors directly using <development/using_wcag_zoo_in_python.html>`_::
+   inspect the messages and errors directly using <//wcag-zoo.readthedocs.io/en/latest/development/using_wcag_zoo_in_python.html>`_::
 
        from wcag_zoo.molerat import molerat
        messages = molerat(html=some_text, ... )
@@ -100,17 +100,17 @@ and like Github-like badges, pick one of these:
 * |wcag-zoo-aaa-badge| ``https://img.shields.io/badge/WCAG_Zoo-AAA-green.svg``
 
 .. |wcag-zoo-aa-badge| image:: https://img.shields.io/badge/WCAG_Zoo-AA-green.svg
-   :target: https://github.com/legostormtroopr/wcag-zoo
+   :target: https://github.com/data61/wcag-zoo/wiki/Compliance-Statement
    :alt: Example badge for WCAG-Zoo Double-A compliance
    
 .. |wcag-zoo-aaa-badge| image:: https://img.shields.io/badge/WCAG_Zoo-AAA-green.svg
-   :target: https://github.com/legostormtroopr/wcag-zoo
+   :target: https://github.com/data61/wcag-zoo/wiki/Compliance-Statement
    :alt: Example badge for WCAG-Zoo Triple-A compliance
 
 ReSTructured Text::
 
     .. image:: https://img.shields.io/badge/WCAG_Zoo-AA-green.svg
-       :target: https://github.com/LegoStormtroopr/wcag-zoo/wiki/Compliance-Statement
+       :target: https://github.com/data61/wcag-zoo/wiki/Compliance-Statement
        :alt: This repository is WCAG-Zoo compliant
 
 Markdown::
