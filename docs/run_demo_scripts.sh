@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
+
 npm install temp
+cpan JSON
+
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 pip install -e .
