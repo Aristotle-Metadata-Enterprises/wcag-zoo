@@ -17,6 +17,7 @@ WCAG Zoo - Scripts for accessbility checking in integrated tests!
    development/using_wcag_zoo_not_in_python.rst
    development/using_wcag_zoo_in_python.rst
    wcag.rst
+   disclaimer.rst
 
 .. include:: ../README.rst
   :start-after: rtd-inclusion-marker
