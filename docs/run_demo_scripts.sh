@@ -3,12 +3,11 @@
 # install requirements for scripts
 npm install temp
 cpan-install JSON
-python2 pip install lxml
 
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 
-$errored_builds = 0
+let errored_builds=0
 for SCRIPT in ./docs/development/scripts/*
 do
     echo -n $SCRIPT " ... "
@@ -19,11 +18,11 @@ do
         then
             echo good
         else
-            $errored_builds = $errored_builds + 1
+            let errored_builds=$((errored_builds+1))
             echo bad
     		echo $OUT
         fi
 	fi
 done
-
+echo $errored_builds
 exit $errored_builds
