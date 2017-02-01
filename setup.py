@@ -17,11 +17,11 @@ setup(
     license='',
     description='',
     long_description=README,
-    url='https://github.com/LegoStormtroopr/wcag-zoo',
+    url='https://github.com/data61/wcag-zoo',
     author='Samuel Spencer',
     author_email='theodore.therone@gmail.com',
     classifiers=[
-        'Development Status :: 2 - Beta',
+        'Development Status :: 5 - Production/Stable',
 
         'Environment :: Web Environment',
         'Intended Audience :: Information Technology',
