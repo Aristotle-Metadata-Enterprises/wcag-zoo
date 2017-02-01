@@ -1,7 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-VERSION = '0.0.11'
+VERSION = '0.0.111'
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()
@@ -19,7 +19,7 @@ setup(
     long_description=README,
     url='https://github.com/data61/wcag-zoo',
     author='Samuel Spencer',
-    author_email='theodore.therone@gmail.com',
+    author_email='sam@aristotlemetadata.com',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
 
