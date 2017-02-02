@@ -4,17 +4,20 @@ WCAG Zoo - Scripts for automated accessiblity validation
 |wcag-zoo-aa-badge| |appveyor| |travis| |coverage| |pypi|
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/uyo3jx1em3cmjrku?svg=true
-   :target: https://ci.appveyor.com/api/projects/status/uyo3jx1em3cmjrku?svg=true
-   :alt: Example badge for WCAG-Zoo Double-A compliance
+   :target: https://ci.appveyor.com/project/LegoStormtroopr/wcag-zoo
+   :alt: Appveyor testing status
    
 .. |travis| image:: https://travis-ci.org/data61/wcag-zoo.svg?branch=master
     :target: https://travis-ci.org/data61/wcag-zoo
+    :alt: Travis-CI  testing status
 
 .. |coverage| image:: https://coveralls.io/repos/github/data61/wcag-zoo/badge.svg
     :target: https://coveralls.io/github/data61/wcag-zoo
+    :alt: Coveralls code coverage
 
 .. |pypi| image:: https://badge.fury.io/py/wcag-zoo.svg
     :target: https://badge.fury.io/py/wcag-zoo
+    :alt: Current version on PyPI
 
 .. rtd-inclusion-marker
 
