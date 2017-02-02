@@ -1,6 +1,28 @@
 WCAG Zoo - Scripts for automated accessiblity validation
 ========================================================
 
+|wcag-zoo-aa-badge| |appveyor| |travis| |coverage| |pypi| |docs|
+
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/uyo3jx1em3cmjrku?svg=true
+   :target: https://ci.appveyor.com/project/LegoStormtroopr/wcag-zoo
+   :alt: Appveyor testing status
+   
+.. |travis| image:: https://travis-ci.org/data61/wcag-zoo.svg?branch=master
+    :target: https://travis-ci.org/data61/wcag-zoo
+    :alt: Travis-CI  testing status
+
+.. |coverage| image:: https://coveralls.io/repos/github/data61/wcag-zoo/badge.svg
+    :target: https://coveralls.io/github/data61/wcag-zoo
+    :alt: Coveralls code coverage
+
+.. |pypi| image:: https://badge.fury.io/py/wcag-zoo.svg
+    :target: https://badge.fury.io/py/wcag-zoo
+    :alt: Current version on PyPI
+
+.. |docs| image:: https://readthedocs.org/projects/wcag-zoo/badge/?version=latest
+    :target: http://wcag-zoo.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
 .. rtd-inclusion-marker
 
 What is it?
@@ -66,7 +88,7 @@ Lastly, if you are building a dynamic site in a language other than Python you c
 line scripts with the ``--json`` or ``-J`` flag and this will produce a JSON output that can be parsed and
 used in your preferred target language.
 
-For details on this see the section in the documentation titled "`Using WCAG-Zoo in languages other than Python <development/using_wcag_zoo_not_in_python.html>`_".
+For details on this see the section in the documentation titled "`Using WCAG-Zoo in languages other than Python <//wcag-zoo.readthedocs.io/en/latest/development/using_wcag_zoo_not_in_python.html>`_".
 
 Do I have to check *every* page?
 --------------------------------
@@ -80,10 +102,10 @@ You convinced me, how do I use it?
 Two ways:
 
 1. `In your build and tests scripts, generate some HTML files and use the command line tools so that
-   you can verify your that the CSS and HTML you output can be read. <development/using_wcag_zoo_not_in_python.html>`_
+   you can verify your that the CSS and HTML you output can be read. <//wcag-zoo.readthedocs.io/en/latest/development/using_wcag_zoo_not_in_python.html>`_
 
 2. `If you are using Python, once installed from pip, you can import any or all of the tools and
-   inspect the messages and errors directly using <development/using_wcag_zoo_in_python.html>`_::
+   inspect the messages and errors directly using <//wcag-zoo.readthedocs.io/en/latest/development/using_wcag_zoo_in_python.html>`_::
 
        from wcag_zoo.molerat import molerat
        messages = molerat(html=some_text, ... )
@@ -100,17 +122,17 @@ and like Github-like badges, pick one of these:
 * |wcag-zoo-aaa-badge| ``https://img.shields.io/badge/WCAG_Zoo-AAA-green.svg``
 
 .. |wcag-zoo-aa-badge| image:: https://img.shields.io/badge/WCAG_Zoo-AA-green.svg
-   :target: https://github.com/legostormtroopr/wcag-zoo
+   :target: https://github.com/data61/wcag-zoo/wiki/Compliance-Statement
    :alt: Example badge for WCAG-Zoo Double-A compliance
    
 .. |wcag-zoo-aaa-badge| image:: https://img.shields.io/badge/WCAG_Zoo-AAA-green.svg
-   :target: https://github.com/legostormtroopr/wcag-zoo
+   :target: https://github.com/data61/wcag-zoo/wiki/Compliance-Statement
    :alt: Example badge for WCAG-Zoo Triple-A compliance
 
 ReSTructured Text::
 
     .. image:: https://img.shields.io/badge/WCAG_Zoo-AA-green.svg
-       :target: https://github.com/LegoStormtroopr/wcag-zoo/wiki/Compliance-Statement
+       :target: https://github.com/data61/wcag-zoo/wiki/Compliance-Statement
        :alt: This repository is WCAG-Zoo compliant
 
 Markdown::

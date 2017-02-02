@@ -22,5 +22,4 @@ WCAG Zoo - Scripts for accessbility checking in integrated tests!
 .. include:: ../README.rst
   :start-after: rtd-inclusion-marker
 
-
 .. include:: includes/indexes.rst
