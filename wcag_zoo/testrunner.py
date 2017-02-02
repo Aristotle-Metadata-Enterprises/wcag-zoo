@@ -177,7 +177,7 @@ def runner(filenames):
     if len(filenames) == 1 and os.path.isdir(filenames[0]):
         dir_name = filenames[0]
         filenames = [
-            os.path.join(dir_name, f)
+            os.path.join(os.path.abspath(dir_name), f)
             for f in os.listdir(dir_name)
             if os.path.isfile(os.path.join(dir_name, f))
         ]
