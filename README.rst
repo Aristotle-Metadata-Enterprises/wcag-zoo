@@ -1,7 +1,7 @@
 WCAG Zoo - Scripts for automated accessiblity validation
 ========================================================
 
-|wcag-zoo-aa-badge| |appveyor| |travis| |coverage| |pypi|
+|wcag-zoo-aa-badge| |appveyor| |travis| |coverage| |pypi| |docs|
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/uyo3jx1em3cmjrku?svg=true
    :target: https://ci.appveyor.com/project/LegoStormtroopr/wcag-zoo
@@ -18,6 +18,10 @@ WCAG Zoo - Scripts for automated accessiblity validation
 .. |pypi| image:: https://badge.fury.io/py/wcag-zoo.svg
     :target: https://badge.fury.io/py/wcag-zoo
     :alt: Current version on PyPI
+
+.. |docs| image:: https://readthedocs.org/projects/wcag-zoo/badge/?version=latest
+    :target: http://wcag-zoo.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 .. rtd-inclusion-marker
 
