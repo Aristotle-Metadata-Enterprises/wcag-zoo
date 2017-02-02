@@ -81,7 +81,7 @@ Lastly, if you are building a dynamic site in a language other than Python you c
 line scripts with the ``--json`` or ``-J`` flag and this will produce a JSON output that can be parsed and
 used in your preferred target language.
 
-For details on this see the section in the documentation titled "`Using WCAG-Zoo in languages other than Python <//wcag-zoo.readthedocs.io/en/latest/development/development/using_wcag_zoo_not_in_python.html>`_".
+For details on this see the section in the documentation titled "`Using WCAG-Zoo in languages other than Python <//wcag-zoo.readthedocs.io/en/latest/development/using_wcag_zoo_not_in_python.html>`_".
 
 Do I have to check *every* page?
 --------------------------------

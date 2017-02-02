@@ -1,7 +1,8 @@
 import os
 from setuptools import setup, find_packages
 
-VERSION = '0.1.0'
+import wcag_zoo
+VERSION = wcag_zoo.version
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()

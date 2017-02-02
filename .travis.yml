@@ -9,7 +9,6 @@ install:
 script:
   - pip uninstall setuptools -y && pip install 'setuptools>34.0' --ignore-installed # needed for updated version of html5lib
   - tox --skip-missing-interpreters
-  - cd docs ; sphinx-build -nW -b html -d _build/doctrees . _build/html ; cd ..
 after_success:
   - coverage report
   - coveralls
