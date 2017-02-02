@@ -1,0 +1,1 @@
+This file ensures the directory is included in git if we ever add static files.
