@@ -197,7 +197,7 @@ def get_applicable_styles(node):
 
         styles.append(dict([
             tuple(
-                s.strip().split(':')
+                s.strip().split(':', 1)
             )
             for s in style.split(';')
         ])
