@@ -239,19 +239,32 @@ class WCAGCommand(object):
         self.level = kwargs.get('level', "AA")
         self.kwargs = kwargs
 
-        self.success = 0
-        self.failures = []
-        self.warnings = []
-        self.skipped = []
+        self.success = {}
+        self.failures = {}
+        self.warnings = {}
+        self.skipped = {}
 
+    def add_success(self, **kwargs):
+        self.add_to_dict(self.success, **kwargs)
+
+    def add_to_dict(self, _dict, **kwargs):
+        guideline = kwargs['guideline']
+        technique = kwargs['technique']
+        g = _dict.get(guideline, {})
+        g[technique] = g.get(technique, [])
+        g[technique].append(build_msg(**kwargs))
+        _dict[guideline] = g
+        
     def add_failure(self, **kwargs):
-        self.failures.append(build_msg(**kwargs))
+        self.add_to_dict(self.failures, **kwargs)
 
     def add_warning(self, **kwargs):
-        self.warnings.append(build_msg(**kwargs))
+        self.add_to_dict(self.warnings, **kwargs)
+        # self.warnings.append(build_msg(**kwargs))
 
     def add_skipped(self, **kwargs):
-        self.skipped.append(build_msg(**kwargs))
+        self.add_to_dict(self.skipped, **kwargs)
+        # self.skipped.append(build_msg(**kwargs))
 
     def skip_element(self, node):
         """
@@ -446,6 +459,7 @@ class WCAGCommand(object):
                         html = file.read()
                         results = klass.validate_document(html)
                     except:
+                        raise
                         results = {'failures': ["Exception thrown"]}
                     output.append((file.name, results))
                     total_results.append(results)
@@ -470,24 +484,30 @@ class WCAGCommand(object):
                         else:
                             print()
 
+                        failures = make_flat(results.get('failures', {}))
+                        warnings = make_flat(results.get('warnings', {}))
+                        skipped = make_flat(results.get('skipped', {}))
+                        success = make_flat(results.get('success', {}))
+
+
                         print_if(
                             "\n".join([
                                 "ERROR - {message}".format(message=r['message'])
-                                for r in results['failures']
+                                 for r in failures
                             ]),
                             check=verbosity>1
                         )
                         print_if(
                             "\n".join([
                                 "WARNING - {message}".format(message=r['message'])
-                                for r in results['warnings']
+                                for r in warnings
                             ]),
                             check=verbosity>2
                         )
                         print_if(
                             "\n".join([
                                 "Skipped - {message}".format(message=r['message'])
-                                for r in results.get('skipped', [])
+                                for r in skipped
                             ]),
                             check=verbosity>2
                         )
@@ -503,10 +523,10 @@ class WCAGCommand(object):
                                 "         - {num_good} succeeded",
                                 "         - {num_skip} skipped",
                             ]).format(
-                                num_fail=len(results['failures']),
-                                num_warn=len(results['warnings']),
-                                num_skip=len(results['skipped']),
-                                num_good=results['success']
+                                num_fail=len(failures),
+                                num_warn=len(warnings),
+                                num_skip=len(skipped),
+                                num_good=len(success)
                             ),
                             check=verbosity>1
                         )
@@ -530,3 +550,10 @@ class WCAGCommand(object):
                 sys.exit(0)
 
         return cli
+
+
+def make_flat(_dict):
+    return [r for guidelines in _dict.values()
+        for techniques in guidelines.values()
+        for r in techniques
+    ]

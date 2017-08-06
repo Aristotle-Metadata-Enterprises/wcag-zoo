@@ -51,7 +51,11 @@ class Anteater(WCAGCommand):
                 'error_code': 'anteater-2'
             })
         else:
-            self.success += 1
+            self.add_success(
+                guideline='1.1.1',
+                technique='H37',
+                node=node
+            )
 
 if __name__ == "__main__":
     cli = Anteater.as_cli()
