@@ -30,6 +30,7 @@ TECHNIQUE = {
     }
 }
 
+
 def normalise_color(color):
     rgba_color = None
     color = color.split("!", 1)[0].strip()  # remove any '!important' declarations
@@ -230,7 +231,6 @@ class Molerat(WCAGCommand):
         if font_size >= 18 or font_size >= 14 and font_is_bold:
             font_size_type = 'large'
             error_code = 'molerat-2'
-            
 
         ratio_threshold = WCAG_LUMINOCITY_RATIO_THRESHOLD[self.level][font_size_type]
         technique = TECHNIQUE[self.level][font_size_type]

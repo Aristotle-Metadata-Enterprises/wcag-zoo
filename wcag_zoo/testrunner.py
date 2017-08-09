@@ -4,6 +4,7 @@ from ast import literal_eval
 import sys
 import os
 from utils import get_wcag_class
+from wcag_zoo.utils import make_flat
 
 
 class ValidationError(Exception):
@@ -41,7 +42,9 @@ def test_file(filename):
             error_attr = "data-wcag-%s-code" % level
 
             # Test the nodes that we're told fail, are expected to fail
-            for result in results[level_plural]:
+            _results = make_flat(results[level_plural])
+            for result in _results:
+                # print(result)
                 err_code = tree.xpath(result['xpath'])[0].get(error_attr, "not given")
                 if result['error_code'] != err_code:
                     test_failures.append(
@@ -59,7 +62,7 @@ def test_file(filename):
 
             for node in tree.xpath("//*[@%s]" % error_attr):
                 this_path = node.getroottree().getpath(node)
-                failed_paths = dict([(result['xpath'], result) for result in results[level_plural]])
+                failed_paths = dict([(result['xpath'], result) for result in _results])
 
                 error_code = node.get(error_attr, "")
                 if this_path not in failed_paths.keys():
@@ -99,6 +102,7 @@ def test_files(filenames):
             print('\x1b[1;31m' + 'failed' + '\x1b[0m')
             print(" ", v.message)
         except:
+            raise
             failed += 1
             print('\x1b[1;31m' + 'error!' + '\x1b[0m')
             if len(filenames) == 1:
@@ -183,7 +187,7 @@ def runner(filenames):
         ]
     all_good = all([
         test_files(filenames),
-        test_command_lines(filenames)
+        # test_command_lines(filenames)
     ])
 
     if not all_good:

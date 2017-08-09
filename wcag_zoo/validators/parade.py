@@ -34,10 +34,11 @@ class Parade(WCAGCommand):
 
         for validator_name in rv:
             cmd = get_wcag_class(validator_name)
-            cmd._tree = self.tree
-            results = cmd(**self.kwargs).validate_document(html)
+            instance = cmd(**self.kwargs)
+            instance._tree = self.tree
+            results = instance.validate_document(html)
             for k, v in results.items():
-                total_results[k].update(v) # = total_results[k] + v
+                total_results[k].update(v)
         return total_results
 
     @classmethod
