@@ -19,6 +19,17 @@ WCAG_LUMINOCITY_RATIO_THRESHOLD = {
     }
 }
 
+TECHNIQUE = {
+    "AA": {
+        'normal': "G18",
+        'large': "G145",
+    },
+    "AAA": {
+        'normal': "G17",
+        'large': "G18",
+    }
+}
+
 
 def normalise_color(color):
     rgba_color = None
@@ -216,11 +227,13 @@ class Molerat(WCAGCommand):
 
         font_size_type = 'normal'
         error_code = 'molerat-1'
+        technique = "G18"
         if font_size >= 18 or font_size >= 14 and font_is_bold:
             font_size_type = 'large'
             error_code = 'molerat-2'
 
-        ratio_threshold = WCAG_LUMINOCITY_RATIO_THRESHOLD.get(self.level).get(font_size_type)
+        ratio_threshold = WCAG_LUMINOCITY_RATIO_THRESHOLD[self.level][font_size_type]
+        technique = TECHNIQUE[self.level][font_size_type]
 
         if ratio < ratio_threshold:
             disp_text = nice_console_text(node.text)
@@ -258,13 +271,19 @@ class Molerat(WCAGCommand):
 
             self.add_failure(
                 guideline='1.4.3',
-                technique='H37',
+                technique=technique,
                 node=node,
                 message=message,
                 error_code=error_code
             )
         else:
-            self.success += 1  # I like what you got!
+            # I like what you got!
+            self.add_success(
+                guideline='1.4.3',
+                technique=technique,
+                node=node
+            )
+
 
 if __name__ == "__main__":
     cli = Molerat.as_cli()

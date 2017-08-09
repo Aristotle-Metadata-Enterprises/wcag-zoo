@@ -36,15 +36,27 @@ class Tarsier(WCAGCommand):
         for node in self.tree.xpath(xpath):
             h = int(node.tag[1])
             if h == depth:
-                self.success += 1
+                self.add_success(
+                    guideline='1.3.1',
+                    technique='H42',
+                    node=node
+                )
             elif h == depth + 1:
-                self.success += 1
+                self.add_success(
+                    guideline='1.3.1',
+                    technique='H42',
+                    node=node
+                )
             elif h < depth:
-                self.success += 1
+                self.add_success(
+                    guideline='1.3.1',
+                    technique='H42',
+                    node=node
+                )
             else:
                 self.add_failure(
                     guideline='1.3.1',
-                    technique='G20',
+                    technique='H42',
                     node=node,
                     message=Tarsier.error_codes['tarsier-1'].format(
                         elem=node.getroottree().getpath(node),

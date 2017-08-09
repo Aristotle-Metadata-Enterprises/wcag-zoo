@@ -13,6 +13,7 @@ class Parade(WCAGCommand):
         super(Parade, self).__init__(*args, **kwargs)
 
     def validate_document(self, html):
+        self.tree = self.get_tree(html)
         rv = sorted([
             filename[:-3]
             for filename in os.listdir(os.path.dirname(__file__))
@@ -33,9 +34,11 @@ class Parade(WCAGCommand):
 
         for validator_name in rv:
             cmd = get_wcag_class(validator_name)
-            results = cmd(**self.kwargs).validate_document(html)
+            instance = cmd(**self.kwargs)
+            instance._tree = self.tree
+            results = instance.validate_document(html)
             for k, v in results.items():
-                total_results[k] = total_results[k] + v
+                total_results[k].update(v)
         return total_results
 
     @classmethod

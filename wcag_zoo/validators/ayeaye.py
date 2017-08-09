@@ -36,7 +36,7 @@ class Ayeaye(WCAGCommand):
         if len(self.tree.xpath('/html/body//*[@accesskey]')) == 0:
             self.add_warning(
                 guideline='2.1.1',
-                technique='G20',
+                technique='G202',
                 node=self.tree.xpath('/html/body')[0],
                 message=Ayeaye.error_codes['ayeaye-3-warning'],
                 error_code='ayeaye-3-warning',
@@ -55,18 +55,22 @@ class Ayeaye(WCAGCommand):
             # Blank or empty
             self.add_failure(
                 guideline='2.1.1',
-                technique='G20',
+                technique='G202',
                 node=node,
                 error_code='ayeaye-2',
                 message=Ayeaye.error_codes['ayeaye-2'].format(elem=node.getroottree().getpath(node)),
             )
         elif access_key not in self.found_keys.keys():
-            self.success += 1
+            self.add_success(
+                guideline='2.1.1',
+                technique='G202',
+                node=node
+            )
             self.found_keys[access_key] = node.getroottree().getpath(node)
         else:
             self.add_failure(
                 guideline='2.1.1',
-                technique='G20',
+                technique='G202',
                 node=node,
                 error_code='ayeaye-1',
                 message=Ayeaye.error_codes['ayeaye-1'].format(key=access_key, elem=self.found_keys[access_key]),

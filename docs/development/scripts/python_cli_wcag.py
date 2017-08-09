@@ -11,7 +11,7 @@ tmp_file.write(my_html)
 tmp_file.seek(0)
 
 process = subprocess.Popen(
-    ["zookeeper", "tarsier", tmp_file.name, "-J"],
+    ["zookeeper", "tarsier", tmp_file.name, "-F"],
     stdout=subprocess.PIPE
 )
 

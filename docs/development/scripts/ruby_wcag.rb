@@ -8,6 +8,6 @@ tmp_file = Tempfile.new('foo')
 tmp_file.write(my_html)
 tmp_file.close
 
-results = `zookeeper tarsier #{tmp_file.path} -J`
+results = `zookeeper tarsier #{tmp_file.path} -F`
 json_results = JSON.parse(results)
 print json_results[0][0], " ", json_results[0][1]['failures'].size, " failures\n"
