@@ -8,10 +8,26 @@ install:
   - pip install -e .
 script:
   - pip uninstall setuptools -y && pip install 'setuptools>34.0' --ignore-installed # needed for updated version of html5lib
-  - tox --skip-missing-interpreters
+  - tox -e zoo-linux --skip-missing-interpreters
+  - tox -e scripts-linux --skip-missing-interpreters
 after_success:
   - coverage report
   - coveralls
+
+jobs:
+  include:
+    - stage: stylecheck
+      python: 3.5
+      script: tox -e flake8 --skip-missing-interpreters
+
+    - stage: documentation
+      python: 3.5
+      script: tox -e docs --skip-missing-interpreters
+
+    - stage: documentation-accessibility
+      python: 3.5
+      script: tox -e dogfood --skip-missing-interpreters
+
 deploy:
   provider: pypi
   user: Samuel.Spencer
