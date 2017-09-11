@@ -20,4 +20,4 @@ install:
 
 # command to run tests
 test_script:
-  - cmd: tox --skip-missing-interpreters
+  - cmd: tox -e zoo-windows --skip-missing-interpreters

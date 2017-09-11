@@ -5,7 +5,13 @@ var temp = require('temp'),
 
 temp.open('wcag', function(err, info) {
   if (!err) {
-    fs.write(info.fd, "<html><head><body><h2>This is wrong, it should be h1");
+    fs.write(
+      info.fd,
+      "<html><head><body><h2>This is wrong, it should be h1",
+      function(err){
+        /* Ignore, we don't care */
+      }
+    );
     fs.close(info.fd, function(err) {
       exec("zookeeper tarsier '" + info.path + "' -F",
         function(err, stdout) {
