@@ -9,6 +9,15 @@ class Anteater(WCAGCommand):
     Anteater checks for alt and title attributes in image tags in HTML against the requirements of the WCAG2.0 standard
     """
 
+    animal = """
+        Anteaters eat ants and termites. They have long, sharp claws and a long,
+        sticky tongue. The tongue can be up to 60 cm long, as long as a person's
+        arm. The anteater opens an ant nest with its claws. Then it licks up the
+        ants with its tongue.
+
+        - https://simple.wikipedia.org/wiki/Anteater
+    """
+
     xpath = '/html/body//img'
 
     error_codes = {

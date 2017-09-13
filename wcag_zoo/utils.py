@@ -12,7 +12,7 @@ import cssutils
 import re
 cssutils.log.setLevel(logging.CRITICAL)
 _element_selector_regex = re.compile(r'(^|\s)\w')
-FILTER_PSEUDOSELECTORS = [':last-child', ':first-child', 'nth-child']
+FILTER_PSEUDOSELECTORS = [':last-child', ':first-child', ':nth-child', ":focus"]
 
 
 class Premoler(Premailer):
@@ -502,8 +502,6 @@ class WCAGCommand(object):
                         if verbosity == 1:
                             if len(results['failures']) > 0:
                                 print('\x1b[1;31m' + 'failed' + '\x1b[0m')
-                            elif warnings_as_errors and len(results['warnings']) > 0:
-                                print('\x1b[1;33m' + 'failed (on warnings only)' + '\x1b[0m')
                             else:
                                 print('\x1b[1;32m' + 'ok' + '\x1b[0m')
                         else:
