@@ -8,8 +8,10 @@ class Tarsier(WCAGCommand):
     """
 
     animal = """
-        The tarsiers are prosimian (non-monkey) primates. They got their name from the long bones in their feet.
-        They are now placed in the suborder Haplorhini, together with the simians (monkeys).
+        The tarsiers are prosimian (non-monkey) primates. They got their name 
+        from the long bones in their feet.
+        They are now placed in the suborder Haplorhini, together with the 
+        simians (monkeys).
 
         Tarsiers have huge eyes and long feet, and catch the insects by jumping at them.
         During the night they wait quietly, listening for the sound of an insect moving nearby.

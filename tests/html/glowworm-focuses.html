@@ -1,0 +1,27 @@
+<html
+    data-wcag-test-command="glowworm"
+    data-wcag-arg-level="'AA'"
+    >
+    <head>
+        <style>
+            .good_focus {
+                outline:none;
+                border:5px solid red;
+            }
+            .bad_focus:nth-child {
+                color:black;
+            }
+            .bad_focus:focus {
+                outline:none;
+            }
+        </style>
+    </head>
+    <body>
+        <label for="bad_focus">A bad input</label>
+        <input name="bad_focus" class="focus bad_focus" data-wcag-failure-code="glowworm-1"></input>
+        <label for="good_focus">A good input</label>
+        <input name="good_focus" class="good_focus" data-wcag-success="1"></input>
+        <label for="bland">A good input</label>
+        <input name="bland" data-wcag-success="1"></input>
+    </body>
+</html>
