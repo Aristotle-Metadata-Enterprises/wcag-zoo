@@ -7,7 +7,7 @@ temp.open('wcag', function(err, info) {
   if (!err) {
     fs.write(
       info.fd,
-      "<html><head><body><h2>This is wrong, it should be h1",
+      "<html><head><body><h1>Heading 1</h1><h3>This is wrong, it should be h2",
       function(err){
         /* Ignore, we don't care */
       }

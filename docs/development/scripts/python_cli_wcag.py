@@ -4,7 +4,7 @@ import json
 import tempfile
 import subprocess
 
-my_html = "<html><head><body><h2>This is wrong, it should be h1"
+my_html = "<html><head><body><h1>1</h1><h3>This is wrong, it should be h2"
 
 tmp_file = tempfile.NamedTemporaryFile()
 tmp_file.write(my_html)
