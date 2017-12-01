@@ -19,7 +19,7 @@ class Tarsier(WCAGCommand):
         - https://simple.wikipedia.org/wiki/Tarsier
     """
 
-    xpath = '/html/body//*[%s]' % (" or ".join(['self::h%d' % x for x in range(7)]))
+    xpath = '/html/body//*[%s]' % (" or ".join(['self::h%d' % x for x in range(1, 7)]))
 
     error_codes = {
         'tarsier-1': "Incorrect header found at {elem} - H{bad} should be H{good}, text in header was {text}",
@@ -50,6 +50,12 @@ class Tarsier(WCAGCommand):
                     node=node
                 )
             elif h < depth:
+                self.add_success(
+                    guideline='1.3.1',
+                    technique='H42',
+                    node=node
+                )
+            elif depth == 0:
                 self.add_success(
                     guideline='1.3.1',
                     technique='H42',
