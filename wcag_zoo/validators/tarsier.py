@@ -23,6 +23,7 @@ class Tarsier(WCAGCommand):
 
     error_codes = {
         'tarsier-1': "Incorrect header found at {elem} - H{bad} should be H{good}, text in header was {text}",
+        'tarsier-2-warning': "{not_h1} header seen before the first H1. Text in header was {text}",
     }
 
     def run_validation_loop(self, xpath=None, validator=None):
@@ -56,11 +57,22 @@ class Tarsier(WCAGCommand):
                     node=node
                 )
             elif depth == 0:
-                self.add_success(
-                    guideline='1.3.1',
-                    technique='H42',
-                    node=node
-                )
+                if h != 1:
+                    self.add_warning(
+                        guideline='1.3.1',
+                        technique='H42',
+                        node=node,
+                        message=Tarsier.error_codes['tarsier-2-warning'].format(
+                            not_h1=node.tag, text=node.text,
+                        ),
+                        error_code='tarsier-2-warning'
+                    )
+                else:
+                    self.add_success(
+                        guideline='1.3.1',
+                        technique='H42',
+                        node=node
+                    )
             else:
                 self.add_failure(
                     guideline='1.3.1',
