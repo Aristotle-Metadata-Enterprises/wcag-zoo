@@ -34,7 +34,7 @@ TECHNIQUE = {
 def normalise_color(color):
     rgba_color = None
     color = color.split("!", 1)[0].strip()  # remove any '!important' declarations
-    color = color.strip(";").strip("}") # Dang minimisers
+    color = color.strip(";").strip("}")  # Dang minimisers
 
     if "transparent" in color or "inherit" in color:
         rgba_color = [0, 0, 0, 0.0]
