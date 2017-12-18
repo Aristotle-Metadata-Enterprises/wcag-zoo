@@ -28,14 +28,16 @@ jobs:
       python: 3.5
       script: tox -e dogfood --skip-missing-interpreters
 
-deploy:
-  provider: pypi
-  user: Samuel.Spencer
-  skip_upload_docs: true
-  password:
-    secure: hJVN74vhyDjG22Ei5/gz0g0d/KfaW2kzjx85c3pT+4jmbTOC3OcGN7Exj+/2wEAygvQDmlijRGJ0yldL3IpE0+N7TASs0/6dNf8fMoG0zRTcuu1ywhUhSgqntRGMjRBpbXeVUeb6ydeAciDkrkmfyuGVQd6bXJQeCxcdU1X5iJ+mnbS9Lu1oUfXt6MZroMImwh+ZCvDn95e8QMFbSmO/3OE7CBtBiCaUMemlgzf1THJsw0JoO/GaU37NEjmsnt6xg8EcXRi/h+Pznnr+8LEs6gqcNRg8uS0mh3e6B3ynvovY6Pr8YdAazG6FTFezc3eQWjViQyBxHGbCcY1z0w7bATa+BT18k2/I6dfF6MFoitPtTmJ9tQEB1HOdL/ngJoYEa2TQxxsCal4qqCWNEgP6O5Jl7uK4u1y00wXQ1M3scGmP1kxu+4DWY9ywfnBvbF8SNKLd4qEkdxQIkZBYd7/4aU/3pHFVE1f+J7LSzLt8gIy/hnLCB23T/DEaLnQJDIBlP4Kcpb277vkayVjuRuGNfU5QXf29Sj4PKvXbVS9gtYDY8U5KheOhb7MmWTlq+WfGvyrpgLfasFQDjWGOqs4oJ4LDO4IJ6BG40LX/OozTXoiT1//DcwDU34SJQlfTiTidZMeOq1fdpQNG84Tig2MkuRnmvO8LF5uIS0I6G3GWP6U=
-  on:
-    branch: master
-    distributions: sdist bdist_wheel
-    repo: data61/wcag-zoo
-    condition: $TRAVIS_PYTHON_VERSION = '3.5'  # Only release on one thread
+    - stage: deploy
+      script: skip
+      deploy:
+        provider: pypi
+        user: Samuel.Spencer
+        skip_upload_docs: true
+        password:
+          secure: hJVN74vhyDjG22Ei5/gz0g0d/KfaW2kzjx85c3pT+4jmbTOC3OcGN7Exj+/2wEAygvQDmlijRGJ0yldL3IpE0+N7TASs0/6dNf8fMoG0zRTcuu1ywhUhSgqntRGMjRBpbXeVUeb6ydeAciDkrkmfyuGVQd6bXJQeCxcdU1X5iJ+mnbS9Lu1oUfXt6MZroMImwh+ZCvDn95e8QMFbSmO/3OE7CBtBiCaUMemlgzf1THJsw0JoO/GaU37NEjmsnt6xg8EcXRi/h+Pznnr+8LEs6gqcNRg8uS0mh3e6B3ynvovY6Pr8YdAazG6FTFezc3eQWjViQyBxHGbCcY1z0w7bATa+BT18k2/I6dfF6MFoitPtTmJ9tQEB1HOdL/ngJoYEa2TQxxsCal4qqCWNEgP6O5Jl7uK4u1y00wXQ1M3scGmP1kxu+4DWY9ywfnBvbF8SNKLd4qEkdxQIkZBYd7/4aU/3pHFVE1f+J7LSzLt8gIy/hnLCB23T/DEaLnQJDIBlP4Kcpb277vkayVjuRuGNfU5QXf29Sj4PKvXbVS9gtYDY8U5KheOhb7MmWTlq+WfGvyrpgLfasFQDjWGOqs4oJ4LDO4IJ6BG40LX/OozTXoiT1//DcwDU34SJQlfTiTidZMeOq1fdpQNG84Tig2MkuRnmvO8LF5uIS0I6G3GWP6U=
+        on:
+          branch: master
+          distributions: sdist bdist_wheel
+          repo: data61/wcag-zoo
+          condition: $TRAVIS_PYTHON_VERSION = '3.5'  # Only release on one thread
