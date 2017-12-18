@@ -1,0 +1,5 @@
+- 0.2.4
+    - Allowed first header to be H2 #12
+    - Fixed issue with minimised code not processing properly
+- 0.2.3
+    - Changelog added
