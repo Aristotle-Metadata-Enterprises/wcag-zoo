@@ -26,6 +26,9 @@ class Glowworm(WCAGCommand):
     error_codes = {
         'glowworm-1': "ELement focus hidden without alternate styling",
     }
+    premolar_kwargs = {
+        "exclude_pseudoclasses": False
+    }
 
     def skip_element(self, node):
         if node.tag in ['script', 'style']:

@@ -1,3 +1,5 @@
+- 0.2.5
+    - Updated Premailer to 3.1.1, improved handling of pseudoclasses
 - 0.2.4
     - Allowed first header to be H2 #12
     - Fixed issue with minimised code not processing properly
