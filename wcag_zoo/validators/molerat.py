@@ -52,9 +52,9 @@ def normalise_color(color):
         for func in funcs:
             try:
                 rgba_color = list(func(color))
+                break
             except:
                 continue
-            break
 
     if rgba_color is None:
         rgba_color = [0, 0, 0, 1]

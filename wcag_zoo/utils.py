@@ -6,6 +6,7 @@ import sys
 from io import BytesIO
 import logging
 from premailer import Premailer
+from premailer.premailer import _cache_parse_css_string
 
 # From Premailer
 import cssutils
@@ -18,7 +19,7 @@ FILTER_PSEUDOSELECTORS = [':last-child', ':first-child', ':nth-child', ":focus"]
 class Premoler(Premailer):
     def __init__(self, *args, **kwargs):
         self.media_rules = kwargs.pop('media_rules', [])
-        super(Premoler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     # We have to override this because an absolute path is from root, not the curent dir.
     def _load_external(self, url):
@@ -56,38 +57,13 @@ class Premoler(Premailer):
 
         return css_body
 
-    def _parse_style_rules(self, css_body, ruleset_index):
-        """Returns a list of rules to apply to this doc and a list of rules
-        that won't be used because e.g. they are pseudoclasses. Rules
-        look like: (specificity, selector, bulk)
-        for example: ((0, 1, 0, 0, 0), u'.makeblue', u'color:blue').
-        The bulk of the rule should not end in a semicolon.
-        """
+    def _parse_css_string(self, css_body, validate=True):
+        # We override this so we can do our rules altering for media queries
+        if self.cache_css_parsing:
+            sheet = _cache_parse_css_string(css_body, validate=validate)
+        else:
+            sheet = cssutils.parseString(css_body, validate=validate)
 
-        def format_css_property(prop):
-            if self.strip_important or prop.priority != 'important':
-                return '{0}:{1}'.format(prop.name, prop.value)
-            else:
-                return '{0}:{1} !important'.format(prop.name, prop.value)
-
-        def join_css_properties(properties):
-            """ Accepts a list of cssutils Property objects and returns
-            a semicolon delimitted string like 'color: red; font-size: 12px'
-            """
-            return ';'.join(
-                format_css_property(prop)
-                for prop in properties
-            )
-
-        leftover = []
-        rules = []
-        # empty string
-        if not css_body:
-            return rules, leftover
-        sheet = self._parse_css_string(
-            css_body,
-            validate=not self.disable_validation
-        )
         _rules = []
         for rule in sheet:
             if rule.type == rule.MEDIA_RULE:
@@ -97,72 +73,7 @@ class Premoler(Premailer):
             elif rule.type == rule.STYLE_RULE:
                 _rules.append(rule)
 
-        for rule in _rules:
-            # handle media rule
-            if rule.type == rule.MEDIA_RULE:
-                leftover.append(rule)
-                continue
-            # only proceed for things we recognize
-            if rule.type != rule.STYLE_RULE:
-                continue
-
-            # normal means it doesn't have "!important"
-            normal_properties = [
-                prop for prop in rule.style.getProperties()
-                if prop.priority != 'important'
-            ]
-            important_properties = [
-                prop for prop in rule.style.getProperties()
-                if prop.priority == 'important'
-            ]
-
-            # Create three strings that we can use to add to the `rules`
-            # list later as ready blocks of css.
-            bulk_normal = join_css_properties(normal_properties)
-            bulk_important = join_css_properties(important_properties)
-            bulk_all = join_css_properties(
-                normal_properties + important_properties
-            )
-
-            selectors = (
-                x.strip()
-                for x in rule.selectorText.split(',')
-                if x.strip() and not x.strip().startswith('@')
-            )
-            for selector in selectors:
-                if (':' in selector and self.exclude_pseudoclasses and
-                    ':' + selector.split(':', 1)[1]
-                        not in FILTER_PSEUDOSELECTORS):
-                    # a pseudoclass
-                    leftover.append((selector, bulk_all))
-                    continue
-                elif '*' in selector and not self.include_star_selectors:
-                    continue
-                # Crudely calculate specificity
-                id_count = selector.count('#')
-                class_count = selector.count('.')
-                element_count = len(_element_selector_regex.findall(selector))
-
-                # Within one rule individual properties have different
-                # priority depending on !important.
-                # So we split each rule into two: one that includes all
-                # the !important declarations and another that doesn't.
-                for is_important, bulk in (
-                    (1, bulk_important), (0, bulk_normal)
-                ):
-                    if not bulk:
-                        # don't bother adding empty css rules
-                        continue
-                    specificity = (
-                        is_important,
-                        id_count,
-                        class_count,
-                        element_count,
-                        ruleset_index,
-                        len(rules)  # this is the rule's index number
-                    )
-                    rules.append((specificity, selector, bulk))
-        return rules, leftover
+        return _rules
 
 
 def print_if(*args, **kwargs):
@@ -232,6 +143,7 @@ class WCAGCommand(object):
     """
     animal = None
     level = 'AA'
+    premolar_kwargs = {}
 
     def __init__(self, *args, **kwargs):
         self.skip_these_classes = kwargs.get('skip_these_classes', [])
@@ -368,16 +280,20 @@ class WCAGCommand(object):
             # Pre-parse
             parser = etree.HTMLParser()
             html = etree.parse(BytesIO(html), parser).getroot()
-            self._tree = Premoler(
-                html,
+            kwargs = dict(
                 exclude_pseudoclasses=True,
                 method="html",
                 preserve_internal_links=True,
-                base_path=self.kwargs.get('staticpath', '.'),
+                base_path=self.kwargs.get("staticpath", "."),
                 include_star_selectors=True,
                 strip_important=False,
                 disable_validation=True,
                 media_rules=self.kwargs.get('media_rules', [])
+            )
+            kwargs.update(self.premolar_kwargs)
+            self._tree = Premoler(
+                html,
+                **kwargs
             ).transform()
         return self._tree
 
