@@ -39,5 +39,5 @@ jobs:
         on:
           branch: master
           distributions: sdist bdist_wheel
-          repo: data61/wcag-zoo
+          repo: Aristotle-Metadata-Enterprises/wcag-zoo
           condition: $TRAVIS_PYTHON_VERSION = '3.5'  # Only release on one thread
