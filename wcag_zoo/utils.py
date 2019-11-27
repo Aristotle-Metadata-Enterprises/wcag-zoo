@@ -102,16 +102,18 @@ def get_applicable_styles(node):
     styles = []
     for parent in node.xpath('ancestor-or-self::*[@style]'):
         style = parent.get('style', "")
+        style = style.rstrip(";")
 
         if not style:
             continue
 
-        styles.append(dict([
-            tuple(
-                s.strip().split(':', 1)
-            )
-            for s in style.split(';')
-        ])
+        styles.append(
+            dict([
+                tuple(
+                    s.strip().split(':', 1)
+                )
+                for s in style.split(';')
+            ])
         )
     return styles
 
